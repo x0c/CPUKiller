@@ -1,0 +1,14 @@
+.gitnexus
+build/
+DerivedData/
+.derivedData/
+.DS_Store
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+.build/
+.swiftpm/
+Packages/
+.claude/
+TASKBOARD.md
+scripts/publish-local.env

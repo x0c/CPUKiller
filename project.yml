@@ -1,0 +1,138 @@
+name: CPUKiller
+
+options:
+  deploymentTarget:
+    macOS: "26.0"
+  xcodeVersion: "26.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+  developmentLanguage: en
+  knownRegions:
+    - en
+    - Base
+    - zh-Hans
+  defaultConfig: Debug
+
+configs:
+  Debug: debug
+  Release: release
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "26.0"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: SHZQ3MWP3B
+    CURRENT_PROJECT_VERSION: 11
+    MARKETING_VERSION: 1.0.0
+    COMBINE_HIDPI_IMAGES: YES
+    SWIFT_EMIT_LOC_STRINGS: YES
+    SWIFT_STRICT_CONCURRENCY: complete
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    STRING_CATALOG_GENERATE_SYMBOLS: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+    ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
+    ENABLE_HARDENED_RUNTIME: NO
+  configs:
+    Debug:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+      ENABLE_TESTABILITY: YES
+    Release:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: ""
+      CODE_SIGN_STYLE: Manual
+      CODE_SIGN_IDENTITY: "Developer ID Application"
+      ENABLE_HARDENED_RUNTIME: YES
+      OTHER_CODE_SIGN_FLAGS: "--timestamp"
+      CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+
+configFiles:
+  Debug: Configuration/Debug.xcconfig
+  Release: Configuration/Release.xcconfig
+
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.9.2"
+
+fileGroups:
+  - Configuration
+  - README.md
+  - README.zh-CN.md
+  - AGENTS.md
+  - CLAUDE.md
+  - LICENSE
+  - docs
+  - design
+
+targets:
+  CPUKiller:
+    type: application
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: CPUKiller
+        excludes:
+          - AppIcon.icon
+          - "AppIcon.icon/**"
+    resources:
+      - path: CPUKiller/AppIcon.icon
+    entitlements:
+      path: CPUKiller/CPUKiller.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: top.caozc.CPUKiller
+        PRODUCT_MODULE_NAME: CPUKiller
+        PRODUCT_NAME: CPU Killer
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_FILE: CPUKiller/Info.plist
+        INFOPLIST_KEY_CFBundleDisplayName: CPU Killer
+        INFOPLIST_KEY_CFBundleName: CPU Killer
+        INFOPLIST_KEY_LSUIElement: YES
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
+        INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © 2026 x0c. Released under the MIT License."
+        INFOPLIST_KEY_NSMainStoryboardFile: ""
+        INFOPLIST_KEY_NSPrincipalClass: NSApplication
+        LD_RUNPATH_SEARCH_PATHS:
+          - $(inherited)
+          - "@executable_path/../Frameworks"
+    dependencies:
+      - package: Sparkle
+        product: Sparkle
+
+  CPUKillerTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - CPUKillerTests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: top.caozc.CPUKiller.tests
+        PRODUCT_NAME: CPUKillerTests
+        GENERATE_INFOPLIST_FILE: YES
+        ENABLE_TESTABILITY: YES
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_HARDENED_RUNTIME: NO
+        SWIFT_DEFAULT_ACTOR_ISOLATION: nonisolated
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/CPU Killer.app/Contents/MacOS/CPU Killer
+        BUNDLE_LOADER: $(TEST_HOST)
+    dependencies:
+      - target: CPUKiller
+
+schemes:
+  CPUKiller:
+    build:
+      targets:
+        CPUKiller: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - name: CPUKillerTests
+    analyze:
+      config: Debug
+    archive:
+      config: Release
