@@ -1,18 +1,20 @@
 import AppKit
+import MacKitLifecycle
 import SwiftUI
 
 @MainActor
 final class SettingsWindowController: NSObject, NSWindowDelegate {
     static let shared = SettingsWindowController()
+    private static let frameAutosaveName = "CPUKiller.Recovery"
 
     private var window: NSWindow?
-    private var previousPolicy: NSApplication.ActivationPolicy?
+    private let activationSession = AccessoryActivationSession()
 
     func show() {
         if window == nil {
             let hosting = NSHostingController(rootView: SettingsView())
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 460, height: 220),
+                contentRect: NSRect(x: 0, y: 0, width: 460, height: 320),
                 styleMask: [.titled, .closable],
                 backing: .buffered,
                 defer: false
@@ -22,22 +24,17 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
             window.isReleasedWhenClosed = false
             window.delegate = self
             window.center()
+            // 先落到屏幕中央，再按已记住的位置恢复；键不存在时不会钉在角落。
+            window.setFrameAutosaveName(Self.frameAutosaveName)
             self.window = window
         }
 
-        if NSApp.activationPolicy() == .accessory {
-            previousPolicy = .accessory
-            NSApp.setActivationPolicy(.regular)
-        }
-        NSApp.activate(ignoringOtherApps: true)
+        activationSession.beginIfAccessory()
         window?.makeKeyAndOrderFront(nil)
         window?.orderFrontRegardless()
     }
 
     func windowWillClose(_ notification: Notification) {
-        if previousPolicy == .accessory {
-            NSApp.setActivationPolicy(.accessory)
-        }
-        previousPolicy = nil
+        activationSession.endIfNeeded()
     }
 }

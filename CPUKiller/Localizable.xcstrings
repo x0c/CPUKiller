@@ -10,11 +10,35 @@
       }
     },
     "menu.openMainWindow": {
-      "comment": "Status menu: open main window",
+      "comment": "Status menu: open recovery / main window",
       "extractionState": "manual",
       "localizations": {
         "en": { "stringUnit": { "state": "translated", "value": "Open Main Window" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "打开主窗口" } }
+      }
+    },
+    "menu.launchAtLogin": {
+      "comment": "Status menu: launch at login, three-state",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Launch at Login" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "开机时打开" } }
+      }
+    },
+    "menu.openLoginItems": {
+      "comment": "Status menu: open System Settings Login Items when approval is pending",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Open Login Items…" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "打开登录项…" } }
+      }
+    },
+    "menu.hideMenuBarIcon": {
+      "comment": "Status menu: hide menu bar icon",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Hide Menu Bar Icon" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "隐藏菜单栏图标" } }
       }
     },
     "menu.settings": {
@@ -58,11 +82,43 @@
       }
     },
     "settings.title": {
-      "comment": "Settings window title",
+      "comment": "Recovery / settings window title",
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "CPU Killer Settings" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "CPU Killer 设置" } }
+        "en": { "stringUnit": { "state": "translated", "value": "CPU Killer" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "CPU Killer" } }
+      }
+    },
+    "settings.status": {
+      "comment": "Recovery window status section",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Status" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "状态" } }
+      }
+    },
+    "settings.running": {
+      "comment": "Recovery window: app is running with icon visible",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "CPU Killer is running. The process table is in the menu bar." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "CPU Killer 正在运行。进程表在菜单栏里。" } }
+      }
+    },
+    "settings.running.iconHidden": {
+      "comment": "Recovery window: app is running with icon hidden",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "CPU Killer is still running. Show the menu bar icon to open the process table." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "CPU Killer 仍在运行。显示菜单栏图标后，才能再打开进程表。" } }
+      }
+    },
+    "settings.showMenuBarIcon": {
+      "comment": "Show menu bar icon toggle in the recovery window",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Show Menu Bar Icon" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "显示菜单栏图标" } }
       }
     },
     "table.column.app": {

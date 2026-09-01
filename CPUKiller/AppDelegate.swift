@@ -1,4 +1,6 @@
 import AppKit
+import MacKitCore
+import MacKitLifecycle
 import SwiftUI
 
 @MainActor
@@ -8,19 +10,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItemController: StatusItemController?
     private var compactPanel: CompactPanel?
     private let appUpdater = AppUpdater()
-    private var allowTermination = false
+    private let terminationGuard = TerminationGuard()
     private var commaMonitor: Any?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppDelegate.shared = self
+        terminationGuard.isUpdateSessionInProgress = { [weak self] in
+            self?.appUpdater.updater.sessionInProgress ?? false
+        }
 
         let panel = CompactPanel(model: listModel)
         compactPanel = panel
 
         statusItemController = StatusItemController(
             onTogglePanel: { [weak self] in self?.toggleCompactPanel() },
+            onOpenMainWindow: { [weak self] in self?.showRecoveryWindow() },
+            onHideMenuBarIcon: { [weak self] in self?.hideMenuBarIcon() },
             onOpenSettings: { [weak self] in self?.showSettings() },
-            onCheckForUpdates: { [weak appUpdater] in appUpdater?.checkForUpdates(nil) },
+            onCheckForUpdates: { [weak self] in self?.checkForUpdates() },
             onQuit: { [weak self] in self?.requestTermination() }
         )
         listModel.setMetricsObserver { [weak statusItemController] cpuPercent, memoryPercent in
@@ -45,7 +52,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return event
         }
 
-        if CommandLine.arguments.contains("--show-panel") {
+        if MenuBarReopenPolicy.shouldShowRecoveryWindow(iconVisible: MenuBarIconStore.shared.isVisible) {
+            showRecoveryWindow()
+        } else if CommandLine.arguments.contains("--show-panel") {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
                 self?.showPanelBelowStatusItem(attempt: 0)
             }
@@ -57,15 +66,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        if allowTermination { return .terminateNow }
-        // Sparkle「安装并重新打开」会发 terminate；更新会话进行中必须放行，
-        // 否则按钮无响应，安装永远不会开始。
-        if appUpdater.updater.sessionInProgress { return .terminateNow }
-        return .terminateCancel
+        terminationGuard.shouldTerminate() ? .terminateNow : .terminateCancel
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        toggleCompactPanel()
+        if MenuBarReopenPolicy.presentation(
+            iconVisible: MenuBarIconStore.shared.isVisible,
+            isReopenOrLaunch: true
+        ) == .showRecoveryWindow {
+            showRecoveryWindow()
+        }
         return false
     }
 
@@ -76,8 +86,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func requestTermination() {
-        allowTermination = true
-        NSApp.terminate(nil)
+        terminationGuard.requestTermination()
+    }
+
+    func checkForUpdates() {
+        appUpdater.checkForUpdates(nil)
     }
 
     func showSettings() {
@@ -85,7 +98,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         SettingsWindowController.shared.show()
     }
 
+    func showRecoveryWindow() {
+        showSettings()
+    }
+
+    private func hideMenuBarIcon() {
+        compactPanel?.hidePanel()
+        MenuBarIconStore.shared.isVisible = false
+        showRecoveryWindow()
+    }
+
     private func toggleCompactPanel() {
+        guard MenuBarIconStore.shared.isVisible else {
+            showRecoveryWindow()
+            return
+        }
         guard let panel = compactPanel else { return }
         if panel.isVisible {
             panel.hidePanel()

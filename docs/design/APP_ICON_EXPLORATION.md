@@ -1,6 +1,6 @@
 # CPU Killer 应用图标探索
 
-> 什么时候该读：重新设计、选择、精绘或接入 CPU Killer 应用图标前必读。不读会把方向探索板的某一格直接当成终稿，或误替换当前工程资源。
+> 什么时候该读：重新设计、选择、精绘、接入 CPU Killer 应用图标，或排查进程表 / Finder 仍显示旧图标（粉底黑叉）前**必读**。不读会把方向探索板的某一格直接当成终稿，或把系统还在吐旧图误判成母版没换、去改菜单栏双环。
 
 ## 当前状态
 
@@ -78,7 +78,8 @@
 
 ## 第 5 格正式接入记录（2026-08-30）
 
-- 正式主图：`design/app-icon/AppIcon-1024.png`；分层图标使用同一张白底 PNG 图层 `CPUKiller/AppIcon.icon/Assets/chip-pressed-white.png`，移除旧的 X 标记图层，不增加外部投影。
+- 正式主图：`design/app-icon/AppIcon-1024.png`；分层图标使用同一张白底 PNG 图层 `CPUKiller/AppIcon.icon/Assets/chip-pressed-white.png`，移除旧的 X 标记图层，不增加外部投影。`AppIcon.icon/Assets/x-mark.svg` 是换图前留下的废文件，正式图层不再引用；看见粉底黑叉不是这份废文件又生效了。
+- **进程表仍显示粉底黑叉**：安装包和 Finder 已是白底芯片后，名单仍可能是上一版。根因是系统按「还是原来那个应用」缓存图标，监视器自己这次运行也把第一次问到的图记下；覆盖安装若没先删掉整个应用文件夹，更容易发生。不要重做母版、不要把 X 加回图层。权威口径与禁令见产品契约「应用图标」。
 - 旧系统兜底：已由正式主图重新生成并覆盖 `CPUKiller/Assets.xcassets/AppIcon.appiconset/` 的 macOS 全尺寸资源；`CPUKiller/Assets.xcassets/MenuBarIcon.imageset/` 未改动。
 - 构图验收：包围盒中心偏移 `x=5px, y=7px`，左右/上下边距差均低于 `2%`；最长边约占 `83.6%`，略高于严格默认阈值但符合简单主体的视觉重量裁定。
 - 小尺寸验收：`180px`、`48px`、`24px` 预览均通过明暗跨度检查；Release 构建、安装和 Finder 实际图标核对已完成，主体显示居中。

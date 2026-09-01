@@ -1,21 +1,66 @@
 import AppKit
+import MacKitCore
 
+/// 本地状态项：菜单栏图标是动态双环，不能换成静态图。左右键分发仍在这里，左键永不弹菜单。
 @MainActor
-final class StatusItemController: NSObject {
+final class StatusItemController: NSObject, NSMenuDelegate {
     private let statusItem: NSStatusItem
     private let menu: NSMenu
     private let onTogglePanel: () -> Void
+    private let onOpenMainWindow: () -> Void
+    private let onHideMenuBarIcon: () -> Void
     private let onOpenSettings: () -> Void
     private let onCheckForUpdates: () -> Void
     private let onQuit: () -> Void
+    private let launchAtLogin = LaunchAtLoginManager.shared
+
+    private lazy var launchAtLoginItem = NSMenuItem(
+        title: String(localized: "menu.launchAtLogin"),
+        action: #selector(toggleLaunchAtLogin(_:)),
+        keyEquivalent: ""
+    )
+    private lazy var openLoginItemsItem = NSMenuItem(
+        title: String(localized: "menu.openLoginItems"),
+        action: #selector(openLoginItems(_:)),
+        keyEquivalent: ""
+    )
+    private lazy var hideIconItem = NSMenuItem(
+        title: String(localized: "menu.hideMenuBarIcon"),
+        action: #selector(hideMenuBarIcon(_:)),
+        keyEquivalent: ""
+    )
+    private lazy var openMainWindowItem = NSMenuItem(
+        title: String(localized: "menu.openMainWindow"),
+        action: #selector(openMainWindow(_:)),
+        keyEquivalent: ""
+    )
+    private lazy var settingsItem = NSMenuItem(
+        title: String(localized: "menu.settings"),
+        action: #selector(openSettings(_:)),
+        keyEquivalent: ","
+    )
+    private lazy var checkForUpdatesItem = NSMenuItem(
+        title: String(localized: "menu.checkForUpdates"),
+        action: #selector(checkForUpdates(_:)),
+        keyEquivalent: ""
+    )
+    private lazy var quitItem = NSMenuItem(
+        title: String(localized: "menu.quit"),
+        action: #selector(quit(_:)),
+        keyEquivalent: "q"
+    )
 
     init(
         onTogglePanel: @escaping () -> Void,
+        onOpenMainWindow: @escaping () -> Void,
+        onHideMenuBarIcon: @escaping () -> Void,
         onOpenSettings: @escaping () -> Void,
         onCheckForUpdates: @escaping () -> Void,
         onQuit: @escaping () -> Void
     ) {
         self.onTogglePanel = onTogglePanel
+        self.onOpenMainWindow = onOpenMainWindow
+        self.onHideMenuBarIcon = onHideMenuBarIcon
         self.onOpenSettings = onOpenSettings
         self.onCheckForUpdates = onCheckForUpdates
         self.onQuit = onQuit
@@ -24,6 +69,10 @@ final class StatusItemController: NSObject {
         super.init()
         configureMenu()
         configureButton()
+        applyIconVisibility(MenuBarIconStore.shared.isVisible)
+        MenuBarIconStore.shared.onChange = { [weak self] visible in
+            self?.applyIconVisibility(visible)
+        }
     }
 
     func buttonScreenFrame() -> NSRect? {
@@ -58,29 +107,39 @@ final class StatusItemController: NSObject {
         button.image?.isTemplate = true
     }
 
+    private func applyIconVisibility(_ visible: Bool) {
+        statusItem.isVisible = visible
+    }
+
     private func configureMenu() {
-        let settings = NSMenuItem(
-            title: String(localized: "menu.settings"),
-            action: #selector(openSettings(_:)),
-            keyEquivalent: ","
-        )
-        settings.target = self
+        for item in [
+            openMainWindowItem,
+            launchAtLoginItem,
+            openLoginItemsItem,
+            hideIconItem,
+            settingsItem,
+            checkForUpdatesItem,
+            quitItem
+        ] {
+            item.target = self
+        }
+        menu.delegate = self
+        menu.items = [
+            openMainWindowItem,
+            launchAtLoginItem,
+            openLoginItemsItem,
+            hideIconItem,
+            settingsItem,
+            checkForUpdatesItem,
+            .separator(),
+            quitItem
+        ]
+    }
 
-        let checkForUpdates = NSMenuItem(
-            title: String(localized: "menu.checkForUpdates"),
-            action: #selector(checkForUpdates(_:)),
-            keyEquivalent: ""
-        )
-        checkForUpdates.target = self
-
-        let quit = NSMenuItem(
-            title: String(localized: "menu.quit"),
-            action: #selector(quit(_:)),
-            keyEquivalent: "q"
-        )
-        quit.target = self
-
-        menu.items = [settings, checkForUpdates, .separator(), quit]
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        launchAtLogin.refresh()
+        launchAtLoginItem.state = menuState(for: launchAtLogin.status)
+        openLoginItemsItem.isHidden = !launchAtLogin.requiresApproval
     }
 
     @objc
@@ -99,6 +158,27 @@ final class StatusItemController: NSObject {
     }
 
     @objc
+    private func toggleLaunchAtLogin(_ sender: Any?) {
+        launchAtLogin.refresh()
+        launchAtLogin.setEnabled(!launchAtLogin.isEnabled)
+    }
+
+    @objc
+    private func openLoginItems(_ sender: Any?) {
+        launchAtLogin.openSystemSettings()
+    }
+
+    @objc
+    private func hideMenuBarIcon(_ sender: Any?) {
+        onHideMenuBarIcon()
+    }
+
+    @objc
+    private func openMainWindow(_ sender: Any?) {
+        onOpenMainWindow()
+    }
+
+    @objc
     private func openSettings(_ sender: Any?) {
         onOpenSettings()
     }
@@ -111,5 +191,13 @@ final class StatusItemController: NSObject {
     @objc
     private func quit(_ sender: Any?) {
         onQuit()
+    }
+
+    private func menuState(for status: LaunchAtLoginStatus) -> NSControl.StateValue {
+        switch status.menuTriState {
+        case .on: return .on
+        case .off: return .off
+        case .mixed: return .mixed
+        }
     }
 }

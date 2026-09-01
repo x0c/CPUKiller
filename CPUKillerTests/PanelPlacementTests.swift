@@ -4,7 +4,7 @@ import XCTest
 final class PanelPlacementTests: XCTestCase {
     private let screen = NSRect(x: 0, y: 0, width: 1440, height: 900)
     private let visible = NSRect(x: 0, y: 80, width: 1440, height: 796)
-    private let size = CGSize(width: 336, height: 360)
+    private let size = AppPreferences.compactSize
 
     func testZeroAnchorDoesNotFallToBottomLeft() {
         let origin = PanelPlacement.origin(

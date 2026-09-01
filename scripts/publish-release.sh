@@ -255,8 +255,9 @@ release_notes_file="${work_dir}/release-notes.md"
 cat > "${release_notes_file}" <<EOF
 CPU Killer ${version}
 
-- First public release: signed and notarized macOS menu bar process table.
-- See who is using the machine's CPU and memory, then end that row.
+- Launch at login (pending approval is not shown as enabled).
+- Hide menu bar icon; settings window is the recovery surface (process table is not).
+- Check for Updates in the menu.
 EOF
 
 appcast_dir="${work_dir}/appcast"

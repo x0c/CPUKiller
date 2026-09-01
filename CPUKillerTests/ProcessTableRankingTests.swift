@@ -1,3 +1,4 @@
+import SwiftUI
 import XCTest
 @testable import CPUKiller
 
@@ -126,5 +127,21 @@ final class ProcessTableRankingTests: XCTestCase {
             isCurrentUser: true,
             isSystemProtected: false
         )
+    }
+}
+
+final class ProcessNamePresentationTests: XCTestCase {
+    func testHumanNamesKeepTheStart() {
+        XCTAssertEqual(ProcessNamePresentation.truncationMode(for: "Google Chrome"), .tail)
+        XCTAssertEqual(ProcessNamePresentation.truncationMode(for: "Activity Monitor"), .tail)
+        XCTAssertEqual(ProcessNamePresentation.truncationMode(for: "IntelliJ IDEA"), .tail)
+        XCTAssertEqual(ProcessNamePresentation.truncationMode(for: "Cursor Agent"), .tail)
+        XCTAssertEqual(ProcessNamePresentation.truncationMode(for: "node"), .tail)
+    }
+
+    func testReverseDNSNamesKeepTheEnd() {
+        XCTAssertEqual(ProcessNamePresentation.truncationMode(for: "com.apple.TimeMachine"), .head)
+        XCTAssertEqual(ProcessNamePresentation.truncationMode(for: "com.apple.backupd"), .head)
+        XCTAssertEqual(ProcessNamePresentation.truncationMode(for: "io.sentry.Sentry"), .head)
     }
 }

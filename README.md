@@ -8,7 +8,7 @@
 
 CPU Killer is a **macOS menu bar process table**. When the machine feels stuck, open it, see which app is using the CPU, and end that row.
 
-It is not Stats or Activity Monitor. There is no process tree, no sensors, and no extra desktop window. Click the menu bar icon, kill the hog, click away.
+It is not Stats or Activity Monitor. There is no process tree and no sensors. The process table lives in the menu bar. If you hide that icon, a small recovery window is how you find the app again — it is not a desktop process table.
 
 **Requires macOS 26 or later.** Open source under the MIT License. Everything stays on your Mac — no account, no telemetry.
 
@@ -56,8 +56,8 @@ open "/Applications/CPU Killer.app"
 1. Click the menu bar dual ring (outer = CPU, inner = memory) to open the table under the icon.
 2. Rows show a human name, whole-machine CPU %, physical memory %, and an end control. Click the CPU or memory header to sort that column high-to-low.
 3. Hover the end control to pin that row so a refresh cannot swap it out from under the click. Click to end it.
-4. Click outside the table to close it. Right-click the icon for Settings, Check for Updates, or Quit.
-5. Launch at login is off by default.
+4. Click outside the table to close it. Right-click the icon for Launch at Login, Hide Menu Bar Icon, Open Main Window, Settings, Check for Updates, or Quit.
+5. Launch at login is off by default. Hiding the menu bar icon opens a small recovery window with Show Menu Bar Icon.
 
 ## Features
 
@@ -69,7 +69,7 @@ open "/Applications/CPU Killer.app"
 
 ## Not in scope
 
-A Stats/iStat sensor dashboard, a dock icon or desktop window, an expandable process tree, Mac App Store, sandboxing, Accessibility / Full Disk Access, or Windows/Linux clients.
+A Stats/iStat sensor dashboard, a dock icon, a desktop process table, an expandable process tree, Mac App Store, sandboxing, Accessibility / Full Disk Access, or Windows/Linux clients. A small recovery window after hiding the menu bar icon is required and is not a process table.
 
 ## License
 

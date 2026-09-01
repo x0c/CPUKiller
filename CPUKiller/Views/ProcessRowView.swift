@@ -14,7 +14,9 @@ struct ProcessRowView: View {
             icon
             Text(row.displayName)
                 .lineLimit(1)
-                .truncationMode(.middle)
+                .allowsTightening(true)
+                .minimumScaleFactor(ProcessNamePresentation.minimumScaleFactor)
+                .truncationMode(ProcessNamePresentation.truncationMode(for: row.displayName))
                 .help(row.displayName)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .layoutPriority(1)
@@ -28,7 +30,7 @@ struct ProcessRowView: View {
                 .frame(width: AppPreferences.metricColumnWidth, alignment: .trailing)
             endButton
         }
-        .font(.system(size: 12))
+        .font(.system(size: ProcessNamePresentation.bodySize))
         .padding(.horizontal, 6)
         .frame(height: 26)
         .contentShape(Rectangle())
@@ -99,5 +101,18 @@ struct ProcessRowView: View {
 
     private var accessibilityText: String {
         "\(row.displayName), CPU \(ProcessTableRanking.percentText(row.cpuPercent)), \(String(localized: "table.column.memory")) \(ProcessTableRanking.percentText(row.memoryPercent))"
+    }
+}
+
+nonisolated enum ProcessNamePresentation {
+    static let bodySize: CGFloat = 12
+    static let minimumScaleFactor: CGFloat = 0.85
+
+    static func truncationMode(for displayName: String) -> Text.TruncationMode {
+        looksLikeReverseDNS(displayName) ? .head : .tail
+    }
+
+    static func looksLikeReverseDNS(_ displayName: String) -> Bool {
+        displayName.contains(".") && !displayName.contains(" ")
     }
 }
