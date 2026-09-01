@@ -339,19 +339,15 @@ git push origin "${tag}"
 log_step "把当前树快照推到 GitHub（不含私有开发史）"
 push_github_snapshot "Release ${tag}"
 
-log_step "发布 GitHub Release（dmg + 更新 zip）"
+# 禁止 create 时带附件：uploads.github.com 会 404，Release 可能留下空壳或根本不存在。
+log_step "发布 GitHub Release（先建空再传 dmg + 更新 zip）"
 if ! gh release view "${tag}" --repo "${REPO}" >/dev/null 2>&1; then
   gh release create "${tag}" --repo "${REPO}" \
     --title "${tag}" --notes-file "${release_notes_file}" \
-    "${dmg_path}" "${update_zip_path}" \
     || die "创建 GitHub Release 失败"
-else
-  for asset in "${ASSET_STEM}-${version}.dmg" "${ASSET_STEM}-${version}.zip"; do
-    gh release delete-asset "${tag}" "${asset}" --repo "${REPO}" --yes >/dev/null 2>&1 || true
-  done
-  gh release upload "${tag}" --repo "${REPO}" "${dmg_path}" "${update_zip_path}" --clobber \
-    || die "上传 Release 附件失败"
 fi
+gh release upload "${tag}" --repo "${REPO}" "${dmg_path}" "${update_zip_path}" --clobber \
+  || die "上传 Release 附件失败"
 
 # ---------- 8. Homebrew cask ----------
 log_step "更新 Homebrew cask（防版本回退）"
