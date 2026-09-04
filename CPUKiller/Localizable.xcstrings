@@ -41,6 +41,38 @@
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "隐藏菜单栏图标" } }
       }
     },
+    "menu.showNetworkSpeed": {
+      "comment": "Status menu: show or hide the two-line network speed readout",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Show Network Speed" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "显示网速" } }
+      }
+    },
+    "menu.menuBarLayout": {
+      "comment": "Status menu: choose the order of rings and network speed",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Menu Bar Layout" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "菜单栏布局" } }
+      }
+    },
+    "menu.ringsOnLeft": {
+      "comment": "Menu bar layout: rings on the left, network speed on the right",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Rings Left, Network Speed Right" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "圆环在左，网速在右" } }
+      }
+    },
+    "menu.speedOnLeft": {
+      "comment": "Menu bar layout: network speed on the left, rings on the right",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Network Speed Left, Rings Right" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "网速在左，圆环在右" } }
+      }
+    },
     "menu.settings": {
       "comment": "Status menu: settings",
       "extractionState": "manual",
@@ -79,6 +111,22 @@
       "localizations": {
         "en": { "stringUnit": { "state": "translated", "value": "Refresh" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "刷新" } }
+      }
+    },
+    "network.loading": {
+      "comment": "Network table: initial sampling state",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Reading network activity…" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "正在读取网络占用…" } }
+      }
+    },
+    "network.empty": {
+      "comment": "Network table: no process has network activity in the latest sample",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "No network activity right now" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "当前没有网络占用" } }
       }
     },
     "settings.title": {
@@ -121,6 +169,14 @@
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "显示菜单栏图标" } }
       }
     },
+    "settings.menuBarLayout": {
+      "comment": "Settings: choose the order of rings and network speed",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Menu Bar Layout" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "菜单栏布局" } }
+      }
+    },
     "table.column.app": {
       "comment": "Table column: app name",
       "extractionState": "manual",
@@ -143,6 +199,22 @@
       "localizations": {
         "en": { "stringUnit": { "state": "translated", "value": "Memory" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "内存" } }
+      }
+    },
+    "table.column.upload": {
+      "comment": "Table column: network upload speed",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Upload" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "上行" } }
+      }
+    },
+    "table.column.download": {
+      "comment": "Table column: network download speed",
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Download" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "下行" } }
       }
     },
     "table.header.cpu": {

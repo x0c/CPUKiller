@@ -7,6 +7,10 @@ import SwiftUI
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private(set) static weak var shared: AppDelegate?
     let listModel = ProcessListModel()
+    private lazy var networkListModel = NetworkListModel { [weak self] in
+        self?.listModel.latestRows ?? []
+    }
+    private let networkSpeedMonitor = NetworkSpeedMonitor()
     private var statusItemController: StatusItemController?
     private var compactPanel: CompactPanel?
     private let appUpdater = AppUpdater()
@@ -19,11 +23,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.appUpdater.updater.sessionInProgress ?? false
         }
 
-        let panel = CompactPanel(model: listModel)
+        let panel = CompactPanel(processModel: listModel, networkModel: networkListModel)
         compactPanel = panel
 
         statusItemController = StatusItemController(
-            onTogglePanel: { [weak self] in self?.toggleCompactPanel() },
+            onOpenPanel: { [weak self] in self?.toggleCompactPanel(for: $0) },
             onOpenMainWindow: { [weak self] in self?.showRecoveryWindow() },
             onHideMenuBarIcon: { [weak self] in self?.hideMenuBarIcon() },
             onOpenSettings: { [weak self] in self?.showSettings() },
@@ -36,11 +40,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 memoryPercent: memoryPercent
             )
         }
+        networkSpeedMonitor.setObserver { [weak statusItemController] uploadBytesPerSecond, downloadBytesPerSecond in
+            statusItemController?.updateNetworkSpeed(
+                uploadBytesPerSecond: uploadBytesPerSecond,
+                downloadBytesPerSecond: downloadBytesPerSecond
+            )
+        }
+        networkSpeedMonitor.start()
         panel.additionalKeptFrames = { [weak statusItemController] in
             statusItemController?.buttonScreenFrame().map { [$0] } ?? []
         }
-        panel.onVisibilityChange = { [weak self] visible in
-            self?.listModel.setPanelVisible(visible)
+        panel.onVisibilityChange = { [weak self] content, visible in
+            switch content {
+            case .process:
+                self?.listModel.setPanelVisible(visible)
+            case .network:
+                self?.networkListModel.setPanelVisible(visible)
+            }
         }
 
         commaMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
@@ -56,7 +72,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             showRecoveryWindow()
         } else if CommandLine.arguments.contains("--show-panel") {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
-                self?.showPanelBelowStatusItem(attempt: 0)
+                self?.showPanelBelowStatusItem(content: .process, attempt: 0)
             }
         }
     }
@@ -83,6 +99,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let commaMonitor {
             NSEvent.removeMonitor(commaMonitor)
         }
+        networkSpeedMonitor.stop()
     }
 
     func requestTermination() {
@@ -108,33 +125,43 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         showRecoveryWindow()
     }
 
-    private func toggleCompactPanel() {
+    private func toggleCompactPanel(for target: StatusItemPanelTarget) {
         guard MenuBarIconStore.shared.isVisible else {
             showRecoveryWindow()
             return
         }
         guard let panel = compactPanel else { return }
-        if panel.isVisible {
+        let content: CompactPanelContent
+        switch target {
+        case .process:
+            content = .process
+        case .networkUpload, .networkDownload:
+            networkListModel.sortColumn = .download
+            content = .network
+        }
+        if panel.isVisible, panel.currentContent == content {
             panel.hidePanel()
+        } else if panel.isVisible {
+            panel.switchContent(to: content)
         } else {
-            showPanelBelowStatusItem(attempt: 0)
+            showPanelBelowStatusItem(content: content, attempt: 0)
         }
     }
 
-    private func showPanelBelowStatusItem(attempt: Int) {
+    private func showPanelBelowStatusItem(content: CompactPanelContent, attempt: Int) {
         guard let panel = compactPanel else { return }
         let frame = statusItemController?.buttonScreenFrame()
         let screens = NSScreen.screens.map(\.frame)
         if let frame, PanelPlacement.isMenuBarAnchor(frame, screens: screens) {
-            panel.show(anchor: frame)
+            panel.show(anchor: frame, content: content)
             return
         }
         if attempt < 12 {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
-                self?.showPanelBelowStatusItem(attempt: attempt + 1)
+                self?.showPanelBelowStatusItem(content: content, attempt: attempt + 1)
             }
             return
         }
-        panel.show(anchor: nil)
+        panel.show(anchor: nil, content: content)
     }
 }

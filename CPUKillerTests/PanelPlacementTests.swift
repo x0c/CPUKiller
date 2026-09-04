@@ -33,6 +33,20 @@ final class PanelPlacementTests: XCTestCase {
         XCTAssertEqual(origin.y, icon.minY - size.height - 6, accuracy: 0.5)
     }
 
+    func testBottomMenuBarIconPlacesPanelTowardTheVisibleScreen() {
+        let icon = NSRect(x: 1200, y: 2, width: 22, height: 22)
+        XCTAssertTrue(PanelPlacement.isMenuBarAnchor(icon, screens: [screen]))
+        let origin = PanelPlacement.origin(
+            anchor: icon,
+            size: size,
+            screens: [screen],
+            visibleScreens: [screen],
+            fallbackVisible: visible
+        )
+        XCTAssertEqual(origin.x, icon.midX - size.width / 2, accuracy: 0.5)
+        XCTAssertEqual(origin.y, icon.maxY + 6, accuracy: 0.5)
+    }
+
     func testMissingAnchorUsesTopOfVisibleArea() {
         let origin = PanelPlacement.origin(
             anchor: nil,

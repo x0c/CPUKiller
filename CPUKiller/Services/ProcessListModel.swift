@@ -58,6 +58,7 @@ nonisolated enum ProcessTableRanking {
 @Observable
 final class ProcessListModel {
     private(set) var rows: [ProcessRow] = []
+    private(set) var latestRows: [ProcessRow] = []
     private(set) var lastError: String?
     private(set) var systemCPUPercent = 0.0
     private(set) var systemMemoryPercent = 0.0
@@ -168,6 +169,7 @@ final class ProcessListModel {
             currentUID: getuid(),
             physicalMemory: memory
         )
+        latestRows = updatedRows
         if panelVisible && (refreshEnabled || rows.isEmpty) {
             rows = updatedRows
             if let pinnedRowID, !updatedRows.contains(where: { $0.id == pinnedRowID }) {

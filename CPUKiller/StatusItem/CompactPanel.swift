@@ -1,15 +1,43 @@
 import AppKit
+import Observation
 import SwiftUI
+
+enum CompactPanelContent: Equatable {
+    case process
+    case network
+}
+
+@MainActor
+@Observable
+private final class CompactPanelContentState {
+    var content: CompactPanelContent = .process
+}
+
+private struct CompactPanelView: View {
+    @Bindable var contentState: CompactPanelContentState
+    @Bindable var processModel: ProcessListModel
+    @Bindable var networkModel: NetworkListModel
+
+    var body: some View {
+        switch contentState.content {
+        case .process:
+            ProcessTableView(model: processModel)
+        case .network:
+            NetworkTableView(model: networkModel)
+        }
+    }
+}
 
 @MainActor
 final class CompactPanel: NSPanel {
-    private var hostingView: NSHostingView<ProcessTableView>?
+    private var hostingView: NSHostingView<CompactPanelView>?
+    private let contentState = CompactPanelContentState()
     private var outsideClickMonitor: Any?
     private var outsideClickLocalMonitor: Any?
     var additionalKeptFrames: () -> [NSRect] = { [] }
-    var onVisibilityChange: (Bool) -> Void = { _ in }
+    var onVisibilityChange: (CompactPanelContent, Bool) -> Void = { _, _ in }
 
-    init(model: ProcessListModel) {
+    init(processModel: ProcessListModel, networkModel: NetworkListModel) {
         super.init(
             contentRect: NSRect(origin: .zero, size: AppPreferences.compactSize),
             styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView],
@@ -28,7 +56,11 @@ final class CompactPanel: NSPanel {
         titleVisibility = .hidden
         titlebarAppearsTransparent = true
 
-        let hosting = NSHostingView(rootView: ProcessTableView(model: model))
+        let hosting = NSHostingView(rootView: CompactPanelView(
+            contentState: contentState,
+            processModel: processModel,
+            networkModel: networkModel
+        ))
         hosting.frame = contentRect(forFrameRect: frame)
         hosting.autoresizingMask = [.width, .height]
         hosting.safeAreaRegions = []
@@ -49,19 +81,33 @@ final class CompactPanel: NSPanel {
     @objc(_hasActiveAppearanceIgnoringKeyFocus)
     func hasActiveAppearanceIgnoringKeyFocusForGlass() -> Bool { true }
 
-    func show(anchor: NSRect?) {
+    var currentContent: CompactPanelContent { contentState.content }
+
+    func show(anchor: NSRect?, content: CompactPanelContent) {
+        switchContent(to: content)
         position(near: anchor)
         orderFrontRegardless()
         makeKey()
         makeFirstResponder(contentView)
         installOutsideClickMonitor()
-        onVisibilityChange(true)
+        onVisibilityChange(contentState.content, true)
     }
 
     func hidePanel() {
         removeOutsideClickMonitor()
         orderOut(nil)
-        onVisibilityChange(false)
+        onVisibilityChange(contentState.content, false)
+    }
+
+    func switchContent(to content: CompactPanelContent) {
+        guard contentState.content != content else { return }
+        if isVisible {
+            onVisibilityChange(contentState.content, false)
+        }
+        contentState.content = content
+        if isVisible {
+            onVisibilityChange(contentState.content, true)
+        }
     }
 
     private func position(near anchor: NSRect?) {
@@ -115,7 +161,7 @@ final class CompactPanel: NSPanel {
         hidePanel()
     }
 
-    private func makeChrome(_ hostingView: NSHostingView<ProcessTableView>) -> NSView {
+    private func makeChrome(_ hostingView: NSHostingView<CompactPanelView>) -> NSView {
         let frame = NSRect(origin: .zero, size: AppPreferences.compactSize)
         if #available(macOS 26.0, *) {
             let glass = PanelGlassView(frame: frame, cornerRadius: AppPreferences.compactCornerRadius)

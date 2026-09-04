@@ -255,9 +255,9 @@ release_notes_file="${work_dir}/release-notes.md"
 cat > "${release_notes_file}" <<EOF
 CPU Killer ${version}
 
-- Launch at login (pending approval is not shown as enabled).
-- Hide menu bar icon; settings window is the recovery surface (process table is not).
-- Check for Updates in the menu.
+- Click the menu-bar rings for the CPU and memory list, or click upload/download for the matching network-activity list.
+- Network activity refreshes every second, stays in step with the menu-bar readings, and never opens to a blank panel.
+- The active connection is detected automatically; right-click Show Network Speed hides or restores the readings and remembers the choice.
 EOF
 
 appcast_dir="${work_dir}/appcast"
