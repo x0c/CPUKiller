@@ -6,6 +6,14 @@ final class StatusItemHitView: NSView {
     var onPrimaryClick: ((NSPoint) -> Void)?
     var onSecondaryClick: (() -> Void)?
 
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        bounds.contains(point) ? self : nil
+    }
+
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
+
     override func mouseDown(with event: NSEvent) {}
 
     override func mouseUp(with event: NSEvent) {

@@ -108,9 +108,12 @@ enum MenuBarIconRenderer {
         let imageMinX = buttonBounds.midX - width / 2
         let speedWidth = width - pointSize - speedGap
         let ringMinX = imageMinX + (layout == .ringsOnLeft ? 0 : speedWidth + speedGap)
-        let ringFrame = NSRect(x: ringMinX, y: buttonBounds.midY - pointSize / 2, width: pointSize, height: pointSize)
+        // 状态栏会在不同菜单栏高度下调整纵向命中坐标；双环只按其横向区带判断。
+        let ringFrame = NSRect(x: ringMinX - 1, y: buttonBounds.minY, width: pointSize + 2, height: buttonBounds.height)
         guard !ringFrame.contains(point) else { return .process }
-        return point.y >= buttonBounds.midY ? .networkUpload : .networkDownload
+        // 上下行读数进入的是同一张网络表，且产品要求总是以 Download 降序打开；
+        // 因此这里不再把纵向位置映射成两种结果，避免菜单栏坐标差异影响入口。
+        return .networkDownload
     }
 
     private static func imageWidth(showsNetworkSpeed: Bool) -> CGFloat {

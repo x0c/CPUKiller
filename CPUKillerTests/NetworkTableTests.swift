@@ -90,12 +90,21 @@ final class StatusItemPanelTargetTests: XCTestCase {
         )
         XCTAssertEqual(
             MenuBarIconRenderer.panelTarget(
+                at: NSPoint(x: imageMinX + 9.5, y: bounds.minY),
+                in: bounds,
+                showsNetworkSpeed: true,
+                layout: .ringsOnLeft
+            ),
+            .process
+        )
+        XCTAssertEqual(
+            MenuBarIconRenderer.panelTarget(
                 at: NSPoint(x: imageMinX + image.size.width - 1, y: 18),
                 in: bounds,
                 showsNetworkSpeed: true,
                 layout: .ringsOnLeft
             ),
-            .networkUpload
+            .networkDownload
         )
         XCTAssertEqual(
             MenuBarIconRenderer.panelTarget(
@@ -105,6 +114,16 @@ final class StatusItemPanelTargetTests: XCTestCase {
                 layout: .ringsOnLeft
             ),
             .networkDownload
+        )
+
+        XCTAssertEqual(
+            MenuBarIconRenderer.panelTarget(
+                at: NSPoint(x: imageMinX + image.size.width - 9.5, y: bounds.minY),
+                in: bounds,
+                showsNetworkSpeed: true,
+                layout: .speedOnLeft
+            ),
+            .process
         )
     }
 
