@@ -64,7 +64,7 @@ graph TD
 关键分层：
 
 1. `AppDelegate.applicationDidFinishLaunching()` 组装所有面向菜单栏的对象，接进程监控数据、接网速采样、决定首次显示恢复窗还是尝试展示进程表。
-2. `StatusItemController.handleClick()` 是左右键分流点；它直接管理状态项可见性、右键菜单的勾选状态，以及每次指标改变后的重绘。
+2. 两个独立状态项各自的系统按钮是左右键分流点；圆环项与网速项各自直连唯一的列表入口，`StatusItemController` 管理状态项可见性、右键菜单的勾选状态，以及每次指标改变后的重绘。
 3. `CompactPanel.show()` 与 `CompactPanel.hidePanel()` 管理临时表的显示、可见性回传与点外关闭；`PanelPlacement.origin()` 只根据真实状态项框进行锚定。
 4. `SettingsWindowController.show()` 提供独立、带标题栏且保存位置的恢复窗口；它与进程表浮层有意分开。
 5. `NetworkSpeedMonitor.start()` 和 `MenuBarIconRenderer.image()` 形成内存内的采样—绘制链路；显示开关只改变绘制宽度和读数，不改变采样链路。
@@ -81,7 +81,7 @@ graph TD
 
 ### 路径二：左键打开、定位并关闭两张表
 
-1. 用户左键状态项，`StatusItemController.handleClick()` 先识别实际命中区域：双环打开 CPU / 内存表，上行读数打开按上行排序的网络表，下行读数打开按下行排序的网络表；左键不挂系统菜单，也不能退化成菜单。
+1. 用户左键状态项：圆环项直接打开 CPU / 内存表，网速项直接打开网络表并默认按 Download 排序；两项没有互相转换的坐标分支。左键不挂系统菜单，也不能退化成菜单。
 2. 若同一张表已显示，`CompactPanel.hidePanel()` 收起它；若点了另一张表，`CompactPanel.switchContent(to:)` 直接切换；若未显示，`AppDelegate.showPanelBelowStatusItem(content:attempt:)` 读取 `StatusItemController.buttonScreenFrame()`。
 3. 只有 `PanelPlacement.isMenuBarAnchor()` 认定为真实菜单栏状态项框时才调用 `CompactPanel.show(anchor:content:)`。坐标尚未就绪时，`AppDelegate.showPanelBelowStatusItem(content:attempt:)` 会短暂重试；重试用尽才交给 `PanelPlacement.origin()` 的安全居中上边回退，绝不把零坐标当作屏幕左下角位置。
 4. `CompactPanel.position(near:)` 通过 `PanelPlacement.origin()` 把表以图标中心为水平中心、紧贴菜单栏下方；位于底部菜单栏的屏幕时则向可见区域内侧展开，并将位置夹在可见屏幕边界内。
@@ -90,7 +90,7 @@ graph TD
 
 ### 路径三：右键菜单与偏好改变
 
-1. 用户右键，或按住 Control 点击，`StatusItemController.handleClick()` 临时把 `NSMenu` 交给状态项并显示；菜单结束后立刻移除该挂载，因此左键的行为不被系统菜单劫持。
+1. 用户右键，或按住 Control 点击，状态项自己的点击层临时显示 `NSMenu`；左键没有菜单挂载，因此不会被系统菜单劫持。
 2. `StatusItemController.menuNeedsUpdate()` 每次打开菜单先刷新开机自启状态，再把开、关、待批准映射为勾选、未勾选、中间态；仅待批准时显示跳转到系统登录项的入口。
 3. 选择“显示网速”时，`StatusItemController.toggleNetworkSpeed()` 改 `MenuBarDisplayPreferences.showsNetworkSpeed` 并重绘。该偏好进入本机默认值，下次启动仍有效。
 4. 选择开机自启时，`StatusItemController.toggleLaunchAtLogin()` 先刷新实际状态，再经 `LaunchAtLoginManager.setEnabled()` 请求切换；已处于待批准而用户仍想开时，引导系统设置而不是假装成功。
@@ -130,7 +130,7 @@ graph TD
 
 | 起点 | 触发 | 必经入口 | 终点 | 必须保持不变 |
 |---|---|---|---|---|
-| 图标显示、表收起 | 左键 | `StatusItemController.handleClick()` → `AppDelegate.showPanelBelowStatusItem()` | 表显示 | 右键菜单不常挂；网速与双环继续刷新 |
+| 图标显示、表收起 | 左键 | 独立点击层 → `AppDelegate.showPanelBelowStatusItem()` | 对应表显示 | 圆环层只进 CPU/内存，网速层只进网络表；右键菜单不常挂；网速与双环继续刷新 |
 | 图标显示、表显示 | 左键 | `AppDelegate.toggleCompactPanel()` → `CompactPanel.hidePanel()` | 表收起 | 图标仍显示；应用不退出 |
 | 图标显示、表显示 | 点击面板外 | `CompactPanel.handleOutsideMouseDown()` → `PanelDismiss.shouldHide()` | 表收起 | 点击面板内或状态项不能触发此转换 |
 | 图标显示 | 右键隐藏 | `AppDelegate.hideMenuBarIcon()` | 图标隐藏、恢复窗口显示 | 应用、采样和进程监控继续；表不能留在屏幕上 |
@@ -159,7 +159,7 @@ graph TD
 |---|---|---|---|
 | 组装菜单栏操作与恢复 | `CPUKiller/AppDelegate.swift` | `AppDelegate.applicationDidFinishLaunching()` | 建立状态项、进程表、网速观察、恢复策略和退出守卫的连接 |
 | 左键开关两张表 | `CPUKiller/AppDelegate.swift` | `AppDelegate.toggleCompactPanel(for:)` → `AppDelegate.showPanelBelowStatusItem(content:attempt:)` | 隐藏图标时改为恢复窗口；正常时按所点双环或上/下行读数打开对应平表 |
-| 处理状态项点击 | `CPUKiller/StatusItem/StatusItemController.swift` | `StatusItemController.handleClick()` | 左键按动态图像区域选择 CPU/内存、上行或下行表，右键或 Control 点击才临时显示菜单 |
+| 处理状态项点击 | `CPUKiller/StatusItem/StatusItemController.swift` | 两个独立状态项的系统按钮 | 圆环项直开 CPU/内存，网速项直开网络表，右键或 Control 点击才临时显示菜单 |
 | 菜单即时状态 | `CPUKiller/StatusItem/StatusItemController.swift` | `StatusItemController.configureMenu()`、`StatusItemController.menuNeedsUpdate()` | 菜单项目、开机自启三态、待批准入口和网速勾选状态 |
 | 动态双环与网速重绘 | `CPUKiller/StatusItem/StatusItemController.swift` | `StatusItemController.updateMetrics()`、`StatusItemController.updateNetworkSpeed()`、`StatusItemController.renderStatusItem()` | 把两种异步输入统一为状态项图片重绘 |
 | 双环与两行排版 | `CPUKiller/StatusItem/MenuBarIconRenderer.swift` | `MenuBarIconRenderer.image()`、`MenuBarIconRenderer.drawNetworkSpeed()`、`MenuBarIconRenderer.edgeAnchoredBaselines()` | 在固定菜单栏高度内画同心双环、上行和下行读数 |
@@ -202,14 +202,14 @@ graph TD
 
 ## §6 核心业务规则与隐性约束
 
-- 【禁止】让系统菜单常挂在状态项上，或以 `MenuBarExtra` 代替左键主路径 -> 必须由 `StatusItemController.handleClick()` 按鼠标类型临时展示右键菜单、左键只进进程表（原因：系统菜单会劫持左键，破坏“点开即可结束”的唯一主路径）。
+- 【禁止】让系统菜单常挂在状态项上，或以 `MenuBarExtra` 代替左键主路径 -> 必须由状态项自己的两个点击层直接开启各自表格，右键或 Control 点击才临时展示菜单（原因：系统菜单会劫持左键，破坏“点开即可结束”的唯一主路径）。
 - **AI 易错点**【锚定】不能把零矩形、任意窗口框或尚未就绪的状态项位置交给浮层 -> 必须先经 `StatusItemController.buttonScreenFrame()` 和 `PanelPlacement.isMenuBarAnchor()` 确认；未就绪时按 `AppDelegate.showPanelBelowStatusItem()` 的有限重试等待（原因：无效坐标会使表掉到屏幕角落）。
 - **AI 易错点**【点外关闭】“点外面关”不等于点击状态项也关 -> `CompactPanel.handleOutsideMouseDown()` 必须把面板自身和 `additionalKeptFrames` 中的状态项框一起交给 `PanelDismiss.shouldHide()`（原因：用户要能连续点状态项而不会误关或错误切换）。
 - 【隐性依赖】面板显示状态必须通过 `CompactPanel.onVisibilityChange` 回传给 `ProcessListModel` -> 面板收起时停止进程列表更新，面板显示时才允许更新（原因：列表刷新与菜单栏双环不是同一刷新开关）。
 - 【隐性依赖】网络表必须复用进程表的责任对象、图标和结束限制 -> 按成员进程汇总系统 `nettop` 的上下行速率，结束仍走同一条安全结束边界；不得改成裸 PID 列表（原因：否则会把同一应用拆散，或绕过系统进程与其他用户的保护）。
 - 【节奏锁定】网络表使用 `nettop` 的一秒差分（首帧只做基线、第二帧产出速率），每帧完成后立即开始下一次读取 -> 禁止用两次独立累计快照或额外两秒等待（原因：网络表会明显落后菜单栏读数，像两套互不相干的监视器）。
 - 【首开状态】网络表收起后保留最近一次有效名单；首次还没有名单时，必须显示“正在读取网络占用”，采样完成但没有流量时显示“当前没有网络占用” -> 禁止留出空白或白屏（原因：系统首个一秒差分尚未完成是正常状态，不应让用户误判应用卡住）。
-- 【点击范围】双环与上、下行的点击必须由状态栏按钮内的透明点击层直接接收本地坐标；状态项宽度固定为当前图像宽度。双环按横向区带命中 CPU / 内存表，不得用纵向坐标继续收窄；只有读数区域才按上、下行进入网络表。禁止从 `NSApp.currentEvent` 反推点击位置或拿状态项整块可点击留白切分（原因：前者在状态项行动回调中不能可靠地代表实际命中点，菜单栏高度调整也会让圆环点击的纵向坐标落在图像框之外，最终把圆环误判为网络读数）。
+- 【点击范围】圆环和网速必须是两个独立的 `NSStatusItem`，各自使用系统按钮的单一左键动作：圆环项只直接打开 CPU / 内存表，网速项只直接打开网络表且默认 Download 降序。菜单栏按后来加入的状态项向左排：为了兑现“圆环在左，网速在右”的默认布局，先创建网速项再创建圆环项；切换布局时移除后按相反顺序重建两项。禁止把它们重新合成一个状态项、叠透明子视图、从 `NSApp.currentEvent` 反推坐标，或拿状态项整块留白切分（原因：菜单栏环境下同一项的局部命中顺序与坐标不可靠，已经多次把圆环错送至网络表；独立状态项从系统事件层隔离入口）。
 - **AI 易错点**【冻结边界】关闭列表刷新或收起面板时，不得停止 `StatusItemController.updateMetrics()`、`StatusItemController.updateNetworkSpeed()`、网速采样或表头整机汇总 -> 只冻结名单快照（原因：双环和全机读数必须持续反映真实系统）。
 - **AI 易错点**【网速来源】网速不是所有网卡字节的总和 -> `NetworkSpeedMonitor` 只读当前默认路由接口，并在接口变化时清除基线、先显示无样本（原因：切换 Wi-Fi、以太网或 VPN 时累加或沿用旧数都会制造假流量）。
 - **AI 易错点**【网速显示开关】关闭“显示网速”不能调用 `NetworkSpeedMonitor.stop()`，也不能影响双环、左键或其他菜单项 -> 只改 `MenuBarDisplayPreferences.showsNetworkSpeed` 后重绘（原因：用户关闭的是读数视觉层，不是采样能力）。
@@ -228,7 +228,7 @@ graph TD
 
 | 想改什么 | 必须同时检查 | 常见错误 | 正确完成条件 |
 |---|---|---|---|
-| 改左键行为 | `StatusItemController.handleClick()`、`AppDelegate.toggleCompactPanel()`、点外关闭测试 | 把左键重新绑成系统菜单，或隐藏状态仍尝试打开表 | 左键只在图标可见时开/关表；图标隐藏时显示恢复窗口 |
+| 改左键行为 | `StatusItemController`、`AppDelegate.toggleCompactPanel()`、点外关闭测试 | 把两个状态项合回坐标分支、把左键重新绑成系统菜单，或隐藏状态仍尝试打开表 | 圆环只开 CPU/内存、网速只开网络；图标隐藏时显示恢复窗口 |
 | 改右键项目排序或文案 | `StatusItemController.configureMenu()`、`menuNeedsUpdate()`、产品契约 | 为了方便把菜单永久挂到状态项，漏掉待批准入口 | 右键有完整项目，左键保持独立；状态每次打开都刷新 |
 | 改面板尺寸或圆角 | `AppPreferences.compactSize`、`CompactPanel.position()`、`PanelPlacement.origin()` | 只改视图尺寸，不改定位边界或常显滚动条空间 | 正常、多屏、边缘锚定下均不越界，不损害常见应用名阅读 |
 | 改点外关闭 | `CompactPanel.installOutsideClickMonitor()`、`PanelDismiss.shouldHide()` | 监听器未移除，或把状态项点击当面板外点击 | 收起后无残留监听器；面板与状态项均保留 |

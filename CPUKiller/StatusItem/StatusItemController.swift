@@ -7,12 +7,25 @@ enum StatusItemPanelTarget: Equatable {
     case networkDownload
 }
 
+/// 系统状态栏会从右向左接纳后来加入的项目；这里明确两项的创建顺序，保证偏好改变后左右位置立即一致。
+extension StatusItemPanelTarget {
+    static func statusItemCreationOrder(for layout: MenuBarLayout) -> [StatusItemPanelTarget] {
+        switch layout {
+        case .ringsOnLeft:
+            return [.networkDownload, .process]
+        case .speedOnLeft:
+            return [.process, .networkDownload]
+        }
+    }
+}
+
 /// 本地状态项：菜单栏图标是动态双环，不能换成静态图。左右键分发仍在这里，左键永不弹菜单。
 @MainActor
 final class StatusItemController: NSObject, NSMenuDelegate {
-    private let statusItem: NSStatusItem
+    private var ringStatusItem: NSStatusItem!
+    private var networkStatusItem: NSStatusItem!
     private let menu: NSMenu
-    private var hitView: StatusItemHitView?
+    private var activeStatusItem: NSStatusItem?
     private let onOpenPanel: (StatusItemPanelTarget) -> Void
     private let onOpenMainWindow: () -> Void
     private let onHideMenuBarIcon: () -> Void
@@ -96,22 +109,22 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         self.onOpenSettings = onOpenSettings
         self.onCheckForUpdates = onCheckForUpdates
         self.onQuit = onQuit
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         menu = NSMenu()
         super.init()
         configureMenu()
-        configureButton()
+        rebuildStatusItems()
         displayPreferences.onChange = { [weak self] in
-            self?.renderStatusItem()
+            self?.rebuildStatusItems()
         }
-        applyIconVisibility(MenuBarIconStore.shared.isVisible)
         MenuBarIconStore.shared.onChange = { [weak self] visible in
             self?.applyIconVisibility(visible)
         }
     }
 
     func buttonScreenFrame() -> NSRect? {
-        guard let button = statusItem.button, let window = button.window else { return nil }
+        guard let item = activeStatusItem ?? ringStatusItem,
+              let button = item.button,
+              let window = button.window else { return nil }
         let frame = window.convertToScreen(button.convert(button.bounds, to: nil))
         guard PanelPlacement.isMenuBarAnchor(frame, screens: NSScreen.screens.map(\.frame)) else {
             return nil
@@ -119,14 +132,42 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         return frame
     }
 
-    private func configureButton() {
-        guard let button = statusItem.button else { return }
-        updateMetrics(cpuPercent: 0, memoryPercent: 0)
+    private func rebuildStatusItems() {
+        if let ringStatusItem {
+            NSStatusBar.system.removeStatusItem(ringStatusItem)
+        }
+        if let networkStatusItem {
+            NSStatusBar.system.removeStatusItem(networkStatusItem)
+        }
+        activeStatusItem = nil
+
+        for target in StatusItemPanelTarget.statusItemCreationOrder(for: displayPreferences.layout) {
+            let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+            configureButton(item.button, target: target)
+            switch target {
+            case .process:
+                ringStatusItem = item
+            case .networkUpload, .networkDownload:
+                networkStatusItem = item
+            }
+        }
+
+        renderStatusItem()
+        applyIconVisibility(MenuBarIconStore.shared.isVisible)
+    }
+
+    private func configureButton(_ button: NSStatusBarButton?, target: StatusItemPanelTarget) {
+        guard let button else { return }
         button.imageScaling = .scaleProportionallyDown
         button.imagePosition = .imageOnly
-        button.setAccessibilityLabel(String(localized: "status.item.accessibility"))
         button.focusRingType = .none
-        installHitView(in: button)
+        button.setAccessibilityLabel(String(localized: "status.item.accessibility"))
+        button.target = self
+        button.action = target == .process ? #selector(openProcessPanel(_:)) : #selector(openNetworkPanel(_:))
+        button.sendAction(on: [.leftMouseUp])
+        let rightClick = NSClickGestureRecognizer(target: self, action: #selector(showContextMenuFromGesture(_:)))
+        rightClick.buttonMask = 0x2
+        button.addGestureRecognizer(rightClick)
     }
 
     func updateMetrics(cpuPercent: Double, memoryPercent: Double) {
@@ -142,7 +183,8 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     }
 
     private func applyIconVisibility(_ visible: Bool) {
-        statusItem.isVisible = visible
+        ringStatusItem.isVisible = visible
+        networkStatusItem.isVisible = visible && displayPreferences.showsNetworkSpeed
     }
 
     private func configureMenu() {
@@ -187,30 +229,23 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         speedOnLeftItem.state = displayPreferences.layout == .speedOnLeft ? .on : .off
     }
 
-    private func installHitView(in button: NSStatusBarButton) {
-        let hitView = StatusItemHitView(frame: button.bounds)
-        hitView.autoresizingMask = [.width, .height]
-        hitView.onPrimaryClick = { [weak self, weak hitView] point in
-            guard let self, let hitView else { return }
-            let target = MenuBarIconRenderer.panelTarget(
-                at: point,
-                in: hitView.bounds,
-                showsNetworkSpeed: self.displayPreferences.showsNetworkSpeed,
-                layout: self.displayPreferences.layout
-            )
-            self.onOpenPanel(target)
-        }
-        hitView.onSecondaryClick = { [weak self] in
-            self?.showContextMenu()
-        }
-        button.addSubview(hitView)
-        self.hitView = hitView
+    @objc
+    private func openProcessPanel(_ sender: Any?) {
+        activeStatusItem = ringStatusItem
+        onOpenPanel(.process)
     }
 
-    private func showContextMenu() {
-        statusItem.menu = menu
-        statusItem.button?.performClick(nil)
-        statusItem.menu = nil
+    @objc
+    private func openNetworkPanel(_ sender: Any?) {
+        activeStatusItem = networkStatusItem
+        onOpenPanel(.networkDownload)
+    }
+
+    @objc
+    private func showContextMenuFromGesture(_ sender: NSClickGestureRecognizer) {
+        guard sender.state == .ended else { return }
+        activeStatusItem = sender.view === ringStatusItem.button ? ringStatusItem : networkStatusItem
+        activeStatusItem?.popUpMenu(menu)
     }
 
     @objc
@@ -273,19 +308,24 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     }
 
     private func renderStatusItem() {
-        guard let button = statusItem.button else { return }
-        let image = MenuBarIconRenderer.image(
+        let ringImage = MenuBarIconRenderer.image(
             cpuPercent: cpuPercent,
             memoryPercent: memoryPercent,
             uploadBytesPerSecond: uploadBytesPerSecond,
             downloadBytesPerSecond: downloadBytesPerSecond,
-            showsNetworkSpeed: displayPreferences.showsNetworkSpeed,
-            layout: displayPreferences.layout
+            showsNetworkSpeed: false
         )
-        image.isTemplate = true
-        statusItem.length = image.size.width
-        button.image = image
-        button.image?.isTemplate = true
-        hitView?.frame = button.bounds
+        ringImage.isTemplate = true
+        ringStatusItem.length = ringImage.size.width
+        ringStatusItem.button?.image = ringImage
+
+        let networkImage = MenuBarIconRenderer.networkImage(
+            uploadBytesPerSecond: uploadBytesPerSecond,
+            downloadBytesPerSecond: downloadBytesPerSecond
+        )
+        networkImage.isTemplate = true
+        networkStatusItem.length = networkImage.size.width
+        networkStatusItem.button?.image = networkImage
+        networkStatusItem.isVisible = MenuBarIconStore.shared.isVisible && displayPreferences.showsNetworkSpeed
     }
 }

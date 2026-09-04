@@ -69,65 +69,36 @@ final class NetworkTableRankingTests: XCTestCase {
 
 @MainActor
 final class StatusItemPanelTargetTests: XCTestCase {
-    func testRingsAndDirectionsHaveSeparateTargets() {
-        let image = MenuBarIconRenderer.image(
+    func testRingAndNetworkUseSeparateStatusImages() {
+        let ringImage = MenuBarIconRenderer.image(
             cpuPercent: 0,
             memoryPercent: 0,
             uploadBytesPerSecond: nil,
             downloadBytesPerSecond: nil,
-            showsNetworkSpeed: true
+            showsNetworkSpeed: false
         )
-        let bounds = NSRect(x: 0, y: 0, width: 200, height: 22)
-        let imageMinX = bounds.midX - image.size.width / 2
-        XCTAssertEqual(
-            MenuBarIconRenderer.panelTarget(
-                at: NSPoint(x: imageMinX + 9.5, y: 11),
-                in: bounds,
-                showsNetworkSpeed: true,
-                layout: .ringsOnLeft
-            ),
-            .process
+        let networkImage = MenuBarIconRenderer.networkImage(
+            uploadBytesPerSecond: nil,
+            downloadBytesPerSecond: nil
         )
-        XCTAssertEqual(
-            MenuBarIconRenderer.panelTarget(
-                at: NSPoint(x: imageMinX + 9.5, y: bounds.minY),
-                in: bounds,
-                showsNetworkSpeed: true,
-                layout: .ringsOnLeft
-            ),
-            .process
-        )
-        XCTAssertEqual(
-            MenuBarIconRenderer.panelTarget(
-                at: NSPoint(x: imageMinX + image.size.width - 1, y: 18),
-                in: bounds,
-                showsNetworkSpeed: true,
-                layout: .ringsOnLeft
-            ),
-            .networkDownload
-        )
-        XCTAssertEqual(
-            MenuBarIconRenderer.panelTarget(
-                at: NSPoint(x: imageMinX + image.size.width - 1, y: 4),
-                in: bounds,
-                showsNetworkSpeed: true,
-                layout: .ringsOnLeft
-            ),
-            .networkDownload
-        )
-
-        XCTAssertEqual(
-            MenuBarIconRenderer.panelTarget(
-                at: NSPoint(x: imageMinX + image.size.width - 9.5, y: bounds.minY),
-                in: bounds,
-                showsNetworkSpeed: true,
-                layout: .speedOnLeft
-            ),
-            .process
-        )
+        XCTAssertEqual(ringImage.size.width, MenuBarIconRenderer.pointSize)
+        XCTAssertGreaterThan(networkImage.size.width, 0)
+        XCTAssertEqual(ringImage.size.height, networkImage.size.height)
     }
 
     func testNetworkTableDefaultsToDownloadOrder() {
         XCTAssertEqual(NetworkListModel.defaultSortColumn, .download)
     }
+
+    func testMenuBarLayoutCreatesItemsInReverseVisualOrder() {
+        XCTAssertEqual(
+            StatusItemPanelTarget.statusItemCreationOrder(for: .ringsOnLeft),
+            [.networkDownload, .process]
+        )
+        XCTAssertEqual(
+            StatusItemPanelTarget.statusItemCreationOrder(for: .speedOnLeft),
+            [.process, .networkDownload]
+        )
+    }
+
 }
