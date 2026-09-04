@@ -12,6 +12,7 @@ enum StatusItemPanelTarget: Equatable {
 final class StatusItemController: NSObject, NSMenuDelegate {
     private let statusItem: NSStatusItem
     private let menu: NSMenu
+    private var hitView: StatusItemHitView?
     private let onOpenPanel: (StatusItemPanelTarget) -> Void
     private let onOpenMainWindow: () -> Void
     private let onHideMenuBarIcon: () -> Void
@@ -124,10 +125,8 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         button.imageScaling = .scaleProportionallyDown
         button.imagePosition = .imageOnly
         button.setAccessibilityLabel(String(localized: "status.item.accessibility"))
-        button.target = self
-        button.action = #selector(handleClick(_:))
-        button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         button.focusRingType = .none
+        installHitView(in: button)
     }
 
     func updateMetrics(cpuPercent: Double, memoryPercent: Double) {
@@ -188,33 +187,30 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         speedOnLeftItem.state = displayPreferences.layout == .speedOnLeft ? .on : .off
     }
 
-    @objc
-    private func handleClick(_ sender: Any?) {
-        guard let event = NSApp.currentEvent else {
-            onOpenPanel(.process)
-            return
+    private func installHitView(in button: NSStatusBarButton) {
+        let hitView = StatusItemHitView(frame: button.bounds)
+        hitView.autoresizingMask = [.width, .height]
+        hitView.onPrimaryClick = { [weak self, weak hitView] point in
+            guard let self, let hitView else { return }
+            let target = MenuBarIconRenderer.panelTarget(
+                at: point,
+                in: hitView.bounds,
+                showsNetworkSpeed: self.displayPreferences.showsNetworkSpeed,
+                layout: self.displayPreferences.layout
+            )
+            self.onOpenPanel(target)
         }
-        if event.type == .rightMouseUp || event.modifierFlags.contains(.control) {
-            statusItem.menu = menu
-            statusItem.button?.performClick(nil)
-            statusItem.menu = nil
-        } else {
-            let target: StatusItemPanelTarget
-            if let button = statusItem.button {
-                let point = button.convert(event.locationInWindow, from: nil)
-                // 状态项按钮会为了点击留出额外宽度；命中判断必须以实际绘制的图像框为准。
-                let imageBounds = button.cell?.imageRect(forBounds: button.bounds) ?? button.bounds
-                target = MenuBarIconRenderer.panelTarget(
-                    at: point,
-                    in: imageBounds,
-                    showsNetworkSpeed: displayPreferences.showsNetworkSpeed,
-                    layout: displayPreferences.layout
-                )
-            } else {
-                target = .process
-            }
-            onOpenPanel(target)
+        hitView.onSecondaryClick = { [weak self] in
+            self?.showContextMenu()
         }
+        button.addSubview(hitView)
+        self.hitView = hitView
+    }
+
+    private func showContextMenu() {
+        statusItem.menu = menu
+        statusItem.button?.performClick(nil)
+        statusItem.menu = nil
     }
 
     @objc
@@ -287,7 +283,9 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             layout: displayPreferences.layout
         )
         image.isTemplate = true
+        statusItem.length = image.size.width
         button.image = image
         button.image?.isTemplate = true
+        hitView?.frame = button.bounds
     }
 }

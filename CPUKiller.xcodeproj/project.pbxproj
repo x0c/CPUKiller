@@ -46,6 +46,7 @@
 		E72C83C65BAC0ADDCCD57D5E /* MacKitLifecycle in Frameworks */ = {isa = PBXBuildFile; productRef = 53218DE61494621B5D7779CF /* MacKitLifecycle */; };
 		E9794DF90853929985A2F96A /* MenuBarIconRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43B5BB53CABF75E76E5C3ACE /* MenuBarIconRenderer.swift */; };
 		E9BBAAB18D6CB56429374A59 /* MacKitCore in Frameworks */ = {isa = PBXBuildFile; productRef = 66252862EDD6E45D1FB86A75 /* MacKitCore */; };
+		EDDDBF6760DF1BA303AFF374 /* StatusItemHitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E630A101C1C1577CA9FD86 /* StatusItemHitView.swift */; };
 		FA0FE6FB8B52C7EBFBA95C97 /* ProcessRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8426D6E9C976724BA9DC7677 /* ProcessRow.swift */; };
 /* End PBXBuildFile section */
 
@@ -88,6 +89,7 @@
 		32B42F3F7D80F849E5D030A2 /* memory-02-fuse.svg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "memory-02-fuse.svg.png"; sourceTree = "<group>"; };
 		356AF23C20B8EF092CB5FBF2 /* AppIcon-1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-1024.png"; sourceTree = "<group>"; };
 		365D4F04F79DD343A1B2E5AE /* ProcessListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessListModel.swift; sourceTree = "<group>"; };
+		39E630A101C1C1577CA9FD86 /* StatusItemHitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemHitView.swift; sourceTree = "<group>"; };
 		3AFA0949201B20452C614292 /* cell-7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cell-7.png"; sourceTree = "<group>"; };
 		40A6658C9CEAB4CDFD74A9A4 /* structure-03-cut-corner.svg */ = {isa = PBXFileReference; path = "structure-03-cut-corner.svg"; sourceTree = "<group>"; };
 		43B5BB53CABF75E76E5C3ACE /* MenuBarIconRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarIconRenderer.swift; sourceTree = "<group>"; };
@@ -456,6 +458,7 @@
 				1358AF99BDD6F2BB7CBDEEAA /* PanelDismiss.swift */,
 				7C9582C59833FA073D6139B8 /* PanelPlacement.swift */,
 				630C636825787AE8EB28CD29 /* StatusItemController.swift */,
+				39E630A101C1C1577CA9FD86 /* StatusItemHitView.swift */,
 			);
 			path = StatusItem;
 			sourceTree = "<group>";
@@ -654,6 +657,7 @@
 				B48918FA2D1245051BC348C5 /* SettingsView.swift in Sources */,
 				AD72F35F38F6CD3446CEE5AA /* SettingsWindowController.swift in Sources */,
 				A57E8EB7E88503A216099D5B /* StatusItemController.swift in Sources */,
+				EDDDBF6760DF1BA303AFF374 /* StatusItemHitView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -735,7 +739,7 @@
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = SHZQ3MWP3B;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -751,7 +755,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.0.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
@@ -880,7 +884,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = SHZQ3MWP3B;
 				ENABLE_HARDENED_RUNTIME = NO;
@@ -902,7 +906,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.0.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
