@@ -19,6 +19,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppDelegate.shared = self
+        // 图标即主入口：清掉历史显隐偏好，启动强制图标可见。
+        UserDefaults.standard.removeObject(forKey: "menuBar.iconVisible")
         terminationGuard.isUpdateSessionInProgress = { [weak self] in
             self?.appUpdater.updater.sessionInProgress ?? false
         }
@@ -29,7 +31,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItemController = StatusItemController(
             onOpenPanel: { [weak self] in self?.toggleCompactPanel(for: $0) },
             onOpenMainWindow: { [weak self] in self?.showRecoveryWindow() },
-            onHideMenuBarIcon: { [weak self] in self?.hideMenuBarIcon() },
             onOpenSettings: { [weak self] in self?.showSettings() },
             onCheckForUpdates: { [weak self] in self?.checkForUpdates() },
             onQuit: { [weak self] in self?.requestTermination() }
@@ -68,9 +69,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return event
         }
 
-        if MenuBarReopenPolicy.shouldShowRecoveryWindow(iconVisible: MenuBarIconStore.shared.isVisible) {
+        // 图标始终可见；登录项拉起时仍传入判定，禁止自动弹设置窗。
+        let isLoginLaunch = LoginLaunchDetector.isLaunchedAsLoginItem
+        if MenuBarReopenPolicy.shouldShowRecoveryWindow(
+            iconVisible: true,
+            isLoginLaunch: isLoginLaunch
+        ) {
             showRecoveryWindow()
-        } else if CommandLine.arguments.contains("--show-panel") {
+        } else if !isLoginLaunch, CommandLine.arguments.contains("--show-panel") {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
                 self?.showPanelBelowStatusItem(content: .process, attempt: 0)
             }
@@ -87,8 +93,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         if MenuBarReopenPolicy.presentation(
-            iconVisible: MenuBarIconStore.shared.isVisible,
-            isReopenOrLaunch: true
+            iconVisible: true,
+            isReopenOrLaunch: true,
+            isLoginLaunch: false
         ) == .showRecoveryWindow {
             showRecoveryWindow()
         }
@@ -119,17 +126,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         showSettings()
     }
 
-    private func hideMenuBarIcon() {
-        compactPanel?.hidePanel()
-        MenuBarIconStore.shared.isVisible = false
-        showRecoveryWindow()
-    }
-
     private func toggleCompactPanel(for target: StatusItemPanelTarget) {
-        guard MenuBarIconStore.shared.isVisible else {
-            showRecoveryWindow()
-            return
-        }
         guard let panel = compactPanel else { return }
         let content: CompactPanelContent
         switch target {

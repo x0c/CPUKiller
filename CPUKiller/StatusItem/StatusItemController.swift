@@ -13,6 +13,7 @@ extension StatusItemPanelTarget {
 }
 
 /// 本地状态项：菜单栏图标是动态双环，不能换成静态图。左右键分发仍在这里，左键永不弹菜单。
+/// 图标即主入口，禁止隐藏；圆环始终可见，网速项仅受「显示网速」偏好控制。
 @MainActor
 final class StatusItemController: NSObject, NSMenuDelegate {
     private var ringStatusItem: NSStatusItem!
@@ -21,7 +22,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     private var activeStatusItem: NSStatusItem?
     private let onOpenPanel: (StatusItemPanelTarget) -> Void
     private let onOpenMainWindow: () -> Void
-    private let onHideMenuBarIcon: () -> Void
     private let onOpenSettings: () -> Void
     private let onCheckForUpdates: () -> Void
     private let onQuit: () -> Void
@@ -40,11 +40,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     private lazy var openLoginItemsItem = NSMenuItem(
         title: String(localized: "menu.openLoginItems"),
         action: #selector(openLoginItems(_:)),
-        keyEquivalent: ""
-    )
-    private lazy var hideIconItem = NSMenuItem(
-        title: String(localized: "menu.hideMenuBarIcon"),
-        action: #selector(hideMenuBarIcon(_:)),
         keyEquivalent: ""
     )
     private lazy var showNetworkSpeedItem = NSMenuItem(
@@ -76,14 +71,12 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     init(
         onOpenPanel: @escaping (StatusItemPanelTarget) -> Void,
         onOpenMainWindow: @escaping () -> Void,
-        onHideMenuBarIcon: @escaping () -> Void,
         onOpenSettings: @escaping () -> Void,
         onCheckForUpdates: @escaping () -> Void,
         onQuit: @escaping () -> Void
     ) {
         self.onOpenPanel = onOpenPanel
         self.onOpenMainWindow = onOpenMainWindow
-        self.onHideMenuBarIcon = onHideMenuBarIcon
         self.onOpenSettings = onOpenSettings
         self.onCheckForUpdates = onCheckForUpdates
         self.onQuit = onQuit
@@ -93,9 +86,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         rebuildStatusItems()
         displayPreferences.onChange = { [weak self] in
             self?.rebuildStatusItems()
-        }
-        MenuBarIconStore.shared.onChange = { [weak self] visible in
-            self?.applyIconVisibility(visible)
         }
     }
 
@@ -133,7 +123,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         ringStatusItem.length = MenuBarIconRenderer.pointSize
         networkStatusItem.length = MenuBarIconRenderer.networkWidth
         renderStatusItem()
-        applyIconVisibility(MenuBarIconStore.shared.isVisible)
+        applyIconVisibility()
     }
 
     private func configureButton(_ button: NSStatusBarButton?, target: StatusItemPanelTarget) {
@@ -162,9 +152,9 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         renderStatusItem()
     }
 
-    private func applyIconVisibility(_ visible: Bool) {
-        ringStatusItem.isVisible = visible
-        networkStatusItem.isVisible = visible && displayPreferences.showsNetworkSpeed
+    private func applyIconVisibility() {
+        ringStatusItem.isVisible = true
+        networkStatusItem.isVisible = displayPreferences.showsNetworkSpeed
     }
 
     private func configureMenu() {
@@ -173,7 +163,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             launchAtLoginItem,
             openLoginItemsItem,
             showNetworkSpeedItem,
-            hideIconItem,
             settingsItem,
             checkForUpdatesItem,
             quitItem
@@ -186,7 +175,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             launchAtLoginItem,
             openLoginItemsItem,
             showNetworkSpeedItem,
-            hideIconItem,
             settingsItem,
             checkForUpdatesItem,
             .separator(),
@@ -237,11 +225,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     }
 
     @objc
-    private func hideMenuBarIcon(_ sender: Any?) {
-        onHideMenuBarIcon()
-    }
-
-    @objc
     private func openMainWindow(_ sender: Any?) {
         onOpenMainWindow()
     }
@@ -283,6 +266,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         )
         networkImage.isTemplate = true
         networkStatusItem.button?.image = networkImage
-        networkStatusItem.isVisible = MenuBarIconStore.shared.isVisible && displayPreferences.showsNetworkSpeed
+        networkStatusItem.isVisible = displayPreferences.showsNetworkSpeed
     }
 }

@@ -56,8 +56,8 @@ open "/Applications/CPU Killer.app"
 1. Click the menu bar dual ring (outer = CPU, inner = memory) to open the table under the icon.
 2. Rows show a human name, whole-machine CPU %, physical memory %, and an end control. Click the CPU or memory header to sort that column high-to-low.
 3. Hover the end control to pin that row so a refresh cannot swap it out from under the click. Click to end it.
-4. Click outside the table to close it. Right-click the icon for Launch at Login, Hide Menu Bar Icon, Open Main Window, Settings, Check for Updates, or Quit.
-5. Launch at login is off by default. Hiding the menu bar icon opens a small recovery window with Show Menu Bar Icon.
+4. Click outside the table to close it. Right-click the icon for Launch at Login, Show Network Speed, Open Main Window, Settings, Check for Updates, or Quit.
+5. Launch at login is off by default. Login launches stay silent (no Settings window). The menu bar icon cannot be hidden.
 
 ## Features
 

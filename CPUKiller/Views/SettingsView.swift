@@ -2,20 +2,18 @@ import SwiftUI
 
 struct SettingsView: View {
     @Bindable private var launchAtLogin = LaunchAtLoginManager.shared
-    @Bindable private var menuBarIcon = MenuBarIconStore.shared
     @FocusState private var focused: Field?
 
     private enum Field: Hashable {
         case launch
         case openLogin
-        case showIcon
         case checkUpdates
     }
 
     var body: some View {
         Form {
             Section(String(localized: "settings.status")) {
-                Text(statusText)
+                Text(String(localized: "settings.running"))
                     .font(.body)
                     .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -56,13 +54,6 @@ struct SettingsView: View {
                         .foregroundStyle(.red)
                 }
 
-                Toggle(String(localized: "settings.showMenuBarIcon"), isOn: iconBinding)
-                    .focused($focused, equals: .showIcon)
-                    .focusEffectDisabled()
-                    .overlay(alignment: .leading) {
-                        focusMark(focused == .showIcon)
-                    }
-
                 Button(String(localized: "menu.checkForUpdates")) {
                     AppDelegate.shared?.checkForUpdates()
                 }
@@ -84,25 +75,10 @@ struct SettingsView: View {
         }
     }
 
-    private var statusText: String {
-        if menuBarIcon.isVisible {
-            String(localized: "settings.running")
-        } else {
-            String(localized: "settings.running.iconHidden")
-        }
-    }
-
     private var launchBinding: Binding<Bool> {
         Binding(
             get: { launchAtLogin.isEnabled },
             set: { launchAtLogin.setEnabled($0) }
-        )
-    }
-
-    private var iconBinding: Binding<Bool> {
-        Binding(
-            get: { menuBarIcon.isVisible },
-            set: { menuBarIcon.isVisible = $0 }
         )
     }
 
