@@ -22,16 +22,8 @@ struct NetworkRowView: View {
                 .help(row.displayName)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .layoutPriority(1)
-            Text(NetworkRateFormatter.text(for: row.uploadBytesPerSecond))
-                .font(.system(size: ProcessNamePresentation.bodySize))
-                .monospacedDigit()
-                .foregroundStyle(TableMetricPresentation.color(for: row.uploadBytesPerSecond, metric: .network))
-                .frame(width: AppPreferences.metricColumnWidth, alignment: .trailing)
-            Text(NetworkRateFormatter.text(for: row.downloadBytesPerSecond))
-                .font(.system(size: ProcessNamePresentation.bodySize))
-                .monospacedDigit()
-                .foregroundStyle(TableMetricPresentation.color(for: row.downloadBytesPerSecond, metric: .network))
-                .frame(width: AppPreferences.metricColumnWidth, alignment: .trailing)
+            rateCell(bytesPerSecond: row.uploadBytesPerSecond)
+            rateCell(bytesPerSecond: row.downloadBytesPerSecond)
             endButton
         }
         .font(.system(size: ProcessNamePresentation.bodySize))
@@ -47,6 +39,24 @@ struct NetworkRowView: View {
             return NSWorkspace.shared.icon(forFile: path)
         }
         return NSWorkspace.shared.icon(for: .unixExecutable)
+    }
+
+    private func rateCell(bytesPerSecond: Double?) -> some View {
+        let parts = NetworkRateFormatter.parts(for: bytesPerSecond)
+        let color = bytesPerSecond.map {
+            TableMetricPresentation.color(for: $0, metric: .network)
+        } ?? Color.secondary
+        return HStack(spacing: 2) {
+            Text(parts.value)
+                .font(.system(size: ProcessNamePresentation.bodySize))
+                .monospacedDigit()
+            if let unit = parts.unit {
+                Text(unit)
+                    .font(.system(size: ProcessNamePresentation.unitSize))
+            }
+        }
+        .foregroundStyle(color)
+        .frame(width: AppPreferences.metricColumnWidth, alignment: .trailing)
     }
 
     @ViewBuilder

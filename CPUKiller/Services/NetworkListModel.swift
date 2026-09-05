@@ -29,6 +29,61 @@ nonisolated enum NetworkTableRanking {
     }
 }
 
+/// 网络名单时间保持：刚有过流量的行短暂无包时仍留在表里，避免秒级闪烁。
+/// 借鉴同类监视器的 “recently active hold”，不用阈值迟滞。
+nonisolated enum NetworkListPresence {
+    static let holdDuration: TimeInterval = 5
+
+    static func rows(
+        processes: [ProcessRow],
+        rates: [pid_t: ProcessNetworkRate],
+        holdUntil: [String: Date],
+        now: Date,
+        holdDuration: TimeInterval = holdDuration
+    ) -> (rows: [NetworkProcessRow], holdUntil: [String: Date]) {
+        var nextHoldUntil: [String: Date] = [:]
+        var rows: [NetworkProcessRow] = []
+        let aliveIDs = Set(processes.map(\.id))
+
+        for process in processes {
+            let total = process.memberPIDs.reduce(
+                into: ProcessNetworkRate(receivedBytesPerSecond: 0, sentBytesPerSecond: 0)
+            ) { aggregate, pid in
+                guard let rate = rates[pid] else { return }
+                aggregate = ProcessNetworkRate(
+                    receivedBytesPerSecond: aggregate.receivedBytesPerSecond + rate.receivedBytesPerSecond,
+                    sentBytesPerSecond: aggregate.sentBytesPerSecond + rate.sentBytesPerSecond
+                )
+            }
+            let active = total.receivedBytesPerSecond > 0 || total.sentBytesPerSecond > 0
+            if active {
+                nextHoldUntil[process.id] = now.addingTimeInterval(holdDuration)
+                rows.append(
+                    NetworkProcessRow(
+                        process: process,
+                        uploadBytesPerSecond: total.sentBytesPerSecond,
+                        downloadBytesPerSecond: total.receivedBytesPerSecond
+                    )
+                )
+                continue
+            }
+            guard let deadline = holdUntil[process.id], deadline > now else { continue }
+            nextHoldUntil[process.id] = deadline
+            rows.append(
+                NetworkProcessRow(
+                    process: process,
+                    uploadBytesPerSecond: 0,
+                    downloadBytesPerSecond: 0
+                )
+            )
+        }
+
+        // 只保留仍存活责任对象的保持期，避免幽灵行。
+        nextHoldUntil = nextHoldUntil.filter { aliveIDs.contains($0.key) }
+        return (rows, nextHoldUntil)
+    }
+}
+
 /// 网络表与 CPU/内存表共享责任进程、图标和结束边界，只替换两列实时速率。
 @MainActor
 @Observable
@@ -45,6 +100,7 @@ final class NetworkListModel {
     private var pinnedRowID: String?
     private var pinnedIndex: Int?
     private var unpinTask: Task<Void, Never>?
+    private var holdUntil: [String: Date] = [:]
 
     var refreshEnabled: Bool = AppPreferences.networkRefreshEnabledDefault {
         didSet {
@@ -75,6 +131,7 @@ final class NetworkListModel {
         } else {
             stop()
             clearPin()
+            holdUntil = [:]
             isReading = false
             Task { await sampler.reset() }
         }
@@ -138,23 +195,14 @@ final class NetworkListModel {
         let currentProcesses = processRows()
         isReading = false
 
-        rows = currentProcesses.compactMap { process in
-            let total = process.memberPIDs.reduce(
-                into: ProcessNetworkRate(receivedBytesPerSecond: 0, sentBytesPerSecond: 0)
-            ) { aggregate, pid in
-                guard let rate = sampledRates[pid] else { return }
-                aggregate = ProcessNetworkRate(
-                    receivedBytesPerSecond: aggregate.receivedBytesPerSecond + rate.receivedBytesPerSecond,
-                    sentBytesPerSecond: aggregate.sentBytesPerSecond + rate.sentBytesPerSecond
-                )
-            }
-            guard total.receivedBytesPerSecond > 0 || total.sentBytesPerSecond > 0 else { return nil }
-            return NetworkProcessRow(
-                process: process,
-                uploadBytesPerSecond: total.sentBytesPerSecond,
-                downloadBytesPerSecond: total.receivedBytesPerSecond
-            )
-        }
+        let presence = NetworkListPresence.rows(
+            processes: currentProcesses,
+            rates: sampledRates,
+            holdUntil: holdUntil,
+            now: Date()
+        )
+        holdUntil = presence.holdUntil
+        rows = presence.rows
         if let pinnedRowID, !rows.contains(where: { $0.id == pinnedRowID }) {
             clearPin()
         }

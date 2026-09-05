@@ -101,6 +101,8 @@ struct ProcessRowView: View {
 
 nonisolated enum ProcessNamePresentation {
     static let bodySize: CGFloat = 12
+    /// 网络表单位专用：比正文小一号，避免大写 `KB/s` 把速率格撑得比百分比更大。
+    static let unitSize: CGFloat = 10
     static let minimumScaleFactor: CGFloat = 0.85
 
     static func truncationMode(for displayName: String) -> Text.TruncationMode {

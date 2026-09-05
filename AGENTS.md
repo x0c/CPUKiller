@@ -50,7 +50,7 @@ Remote：`app-macos` → GitHub 公开 [`x0c/CPUKiller`](https://github.com/x0c/
 
 - [~/.config/agentsync/docs/MACOS_APP_DEVELOPMENT_GUIDE.md](~/.config/agentsync/docs/MACOS_APP_DEVELOPMENT_GUIDE.md)：改、评审或排查 CPU Killer 的菜单栏图标、开机自启动、隐藏图标、恢复窗口或检查更新前**必读**。不读会把隐藏图标后仍需找回应用的恢复面误删，或把菜单栏入口误作进程保活机制。
 - [app-macos/AGENTS.md](app-macos/AGENTS.md)：改、评审或排查 macOS 客户端工程、菜单栏浮层、进程表、结束、覆盖安装、公开开源或发版前**必读**。不读会加回桌面进程表工作区、把菜单挂到左键上、开沙盒导致进程表空，覆盖安装把签名装坏，或把内网地址推进公开仓。
-- [app-macos/docs/PRODUCT_CONTRACT.md](app-macos/docs/PRODUCT_CONTRACT.md)：改、评审或排查菜单栏图标/模板图、两行网速、自动识别当前网卡、隐藏图标、恢复窗口、开机自启三态或任何其他用户可见行为（人话名折行、名字列过宽、长包名省略、Chrome 显示成 `Goog...rome`、长名字减小字体、前缀省略、中间省略、整机占比、刚开机内存六十多、表头汇总、点列名排序、表出现在图标下方、掉到屏幕角落、结束边界、菜单栏点开/点外面关、刷新开关、表头顶空白、结束符号悬停钉行、检查更新入口、进程表仍显示旧图标/粉底黑叉）前**必读**。不读会把已锁体验改掉、把网速算到错误网卡上、把开机六十当泄漏去改口径、把 ChatGPT/Cursor Agent/Corral 显示回 node/Python、把隐藏图标后的恢复面做成进程表，或把系统还在吐旧图当成图标没装进去去重做。
+- [app-macos/docs/PRODUCT_CONTRACT.md](app-macos/docs/PRODUCT_CONTRACT.md)：改、评审或排查菜单栏图标/模板图、两行网速、自动识别当前网卡、隐藏图标、恢复窗口、开机自启三态或任何其他用户可见行为（人话名折行、名字列过宽、长包名省略、Chrome 显示成 `Goog...rome`、长名字减小字体、前缀省略、中间省略、整机占比、刚开机内存六十多、表头汇总、点列名排序、表出现在图标下方、掉到屏幕角落、结束边界、菜单栏点开/点外面关、刷新开关、表头顶空白、结束符号悬停钉行、检查更新入口、进程表仍显示旧图标/粉底黑叉、网络表字号色阶、网络表名单秒级闪烁/Chrome 进进出出）前**必读**。不读会把已锁体验改掉、把网速算到错误网卡上、把开机六十当泄漏去改口径、把 ChatGPT/Cursor Agent/Corral 显示回 node/Python、把隐藏图标后的恢复面做成进程表、把系统还在吐旧图当成图标没装进去去重做，或把短暂无流量的网络行秒级踢出名单。
 - [~/Codes/_standards/swift.md](../_standards/swift.md)：新建、评审或改造本 macOS 应用前**必读**。不读会偏离 Swift 6 并发基线和覆盖安装闭环。
 - [~/Codes/_standards/workspace-docs/swift-docs/macos-app-baseline.md](../_standards/workspace-docs/swift-docs/macos-app-baseline.md)：脚手架、评审完整度、补分发/开机自启/设置窗前**必读**。不读会把「第一波能跑」当成完成，或把未对外发行的暂缓当成可以永久不做。
 - [~/.config/agentsync/docs/MAC_PROCESS_IDENTITY_KNOWLEDGE_BASE.md](~/.config/agentsync/docs/MAC_PROCESS_IDENTITY_KNOWLEDGE_BASE.md)：改人话名、责任进程、整机 CPU%、折行规则前**必读**。不读会做成进程树或按 Unix 父进程建树。
@@ -167,7 +167,7 @@ Debug 测试目标默认不绑主线程；应用里给测试读的常量袋必�
 ## 文档导航
 
 - [docs/design/APP_ICON_EXPLORATION.md](docs/design/APP_ICON_EXPLORATION.md)：重新设计、选择、精绘、接入应用图标，或排查进程表 / Finder 仍显示旧图标（粉底黑叉）前**必读**。不读会把九宫格探索稿当终稿，覆盖当前母版与菜单栏模板，或把系统还在吐旧图误判成母版没换。
-- [docs/PRODUCT_CONTRACT.md](docs/PRODUCT_CONTRACT.md)：改、评审或排查菜单栏图标/模板图、两行网速、自动识别当前网卡、隐藏图标、恢复窗口、开机自启三态或任何其他用户可见行为（人话名折行、名字列过宽、长包名省略、Chrome 显示成 `Goog...rome`、长名字减小字体、前缀省略、中间省略、整机占比、刚开机内存六十多、表头汇总、点列名排序、表出现在图标下方、掉到屏幕角落、结束边界、刷新开关、表头顶空白、结束符号悬停钉行、检查更新入口、进程表仍显示旧图标/粉底黑叉）前**必读**。不读会把网速算到错误网卡上、把 ChatGPT 拆成一堆 node、把开机六十当泄漏去改口径、把 Cursor Agent 折进 Cursor.app、把隐藏图标后的恢复面做成进程表，或把系统还在吐旧图当成图标没装进去去重做。
+- [docs/PRODUCT_CONTRACT.md](docs/PRODUCT_CONTRACT.md)：改、评审或排查菜单栏图标/模板图、两行网速、网速左侧空白/刷新抖动、自动识别当前网卡、隐藏图标、恢复窗口、开机自启三态或任何其他用户可见行为（人话名折行、名字列过宽、长包名省略、Chrome 显示成 `Goog...rome`、长名字减小字体、前缀省略、中间省略、整机占比、刚开机内存六十多、表头汇总、点列名排序、表出现在图标下方、掉到屏幕角落、结束边界、刷新开关、表头顶空白、结束符号悬停钉行、检查更新入口、进程表仍显示旧图标/粉底黑叉、网络表字号色阶、网络表名单秒级闪烁/Chrome 进进出出）前**必读**。不读会把网速算到错误网卡上、把 ChatGPT 拆成一堆 node、把开机六十当泄漏去改口径、把 Cursor Agent 折进 Cursor.app、把隐藏图标后的恢复面做成进程表、把系统还在吐旧图当成图标没装进去去重做、把防抖又预留四位数字导致左侧大空白，或把短暂无流量的网络行秒级踢出名单。
 - 本机 overlay / 玻璃 / 图标 / 本地化 / 设置项配方在 `~/Codes/_standards/workspace-docs/swift-docs/`，改对应能力前必读。不读会把三种浮层混用、把列表做成玻璃、再补扁平切图、或把键名显示给用户。
 - 本机进程身份识别知识库：`~/.config/agentsync/docs/MAC_PROCESS_IDENTITY_KNOWLEDGE_BASE.md`。改身份识别或 CPU 口径前**必读**。
 - [docs/PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md](docs/PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md)：改、评审或排查实时占用、人话名、排序、刷新、结束权限或终止流程前**必读**。不读会把整机口径、平表聚合或安全结束边界改错。

@@ -21,6 +21,15 @@ final class NetworkSpeedMonitorTests: XCTestCase {
         XCTAssertEqual(NetworkRateFormatter.text(for: 1_024 * 1_024 * 1_024 * 2), "2 GB/s")
     }
 
+    func testRateValuesStayWithinThreeDigits() {
+        XCTAssertEqual(NetworkRateFormatter.text(for: 999 * 1_024), "999 KB/s")
+        // 再高一档：不足 1 MB/GB 时按既有规则显示 <1，而不是四位 KB/MB。
+        XCTAssertEqual(NetworkRateFormatter.text(for: 1_000 * 1_024), "<1 MB/s")
+        XCTAssertEqual(NetworkRateFormatter.text(for: 999 * 1_024 * 1_024), "999 MB/s")
+        XCTAssertEqual(NetworkRateFormatter.text(for: 1_000 * 1_024 * 1_024), "<1 GB/s")
+        XCTAssertEqual(NetworkRateFormatter.text(for: 1_024 * 1_024), "1 MB/s")
+    }
+
     func testPairsDirectionsUnderTheirLargestUnit() {
         let pair = NetworkRateFormatter.pair(
             uploadBytesPerSecond: 349 * 1_024,
@@ -33,6 +42,21 @@ final class NetworkSpeedMonitorTests: XCTestCase {
 
     func testMissingSampleUsesDashInsteadOfStaleSpeed() {
         XCTAssertEqual(NetworkRateFormatter.text(for: nil), "—")
+        XCTAssertEqual(
+            NetworkRateFormatter.parts(for: nil),
+            NetworkRateTextParts(value: "—", unit: nil)
+        )
+    }
+
+    func testTablePartsKeepValueAndUnitSeparate() {
+        XCTAssertEqual(
+            NetworkRateFormatter.parts(for: 28 * 1_024),
+            NetworkRateTextParts(value: "28", unit: "KB/s")
+        )
+        XCTAssertEqual(
+            NetworkRateFormatter.parts(for: 512),
+            NetworkRateTextParts(value: "<1", unit: "KB/s")
+        )
     }
 
     @MainActor

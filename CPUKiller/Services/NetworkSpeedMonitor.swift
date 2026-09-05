@@ -185,11 +185,28 @@ nonisolated struct NetworkRatePair: Equatable {
     let unit: String?
 }
 
+/// 表格里数字与单位拆开排：数字跟百分比同号，单位更小一号，避免大写 `KB/s` 把整格撑大。
+nonisolated struct NetworkRateTextParts: Equatable {
+    let value: String
+    let unit: String?
+}
+
 nonisolated enum NetworkRateFormatter {
     static func text(for bytesPerSecond: Double?) -> String {
-        guard let bytesPerSecond, bytesPerSecond >= 0 else { return "—" }
+        let parts = parts(for: bytesPerSecond)
+        guard let unit = parts.unit else { return parts.value }
+        return "\(parts.value) \(unit)"
+    }
+
+    static func parts(for bytesPerSecond: Double?) -> NetworkRateTextParts {
+        guard let bytesPerSecond, bytesPerSecond >= 0 else {
+            return NetworkRateTextParts(value: "—", unit: nil)
+        }
         let unit = unit(for: bytesPerSecond)
-        return "\(valueText(for: bytesPerSecond, unit: unit)) \(unit.label)"
+        return NetworkRateTextParts(
+            value: valueText(for: bytesPerSecond, unit: unit),
+            unit: unit.label
+        )
     }
 
     static func pair(
@@ -211,10 +228,13 @@ nonisolated enum NetworkRateFormatter {
     }
 
     private static func unit(for bytesPerSecond: Double) -> NetworkRateUnit {
-        if bytesPerSecond < 1_024 * 1_024 {
+        // 展示整数不得超过三位：再高就升档，固定菜单栏宽度才压得住左侧留白。
+        let kilobytes = bytesPerSecond / 1_024
+        if kilobytes < 999.5 {
             return .kilobytes
         }
-        if bytesPerSecond < 1_024 * 1_024 * 1_024 {
+        let megabytes = bytesPerSecond / (1_024 * 1_024)
+        if megabytes < 999.5 {
             return .megabytes
         }
         return .gigabytes
@@ -223,7 +243,8 @@ nonisolated enum NetworkRateFormatter {
     private static func valueText(for bytesPerSecond: Double, unit: NetworkRateUnit) -> String {
         let value = bytesPerSecond / unit.divisor
         guard value > 0 else { return "0" }
-        guard value >= 1 else { return "<1" }
+        // 不足一个当前单位仍显示 <1（含升档边界上略低于 1 的峰值）。
+        if value < 1 { return "<1" }
         return String(format: "%.0f", locale: Locale(identifier: "en_US_POSIX"), value.rounded())
     }
 }

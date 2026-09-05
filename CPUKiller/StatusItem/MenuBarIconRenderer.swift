@@ -40,8 +40,13 @@ enum MenuBarIconRenderer {
     private static let prominentSpeedFont = NSFont.monospacedDigitSystemFont(ofSize: 9.5, weight: .regular)
     private static let secondarySpeedFont = NSFont.monospacedDigitSystemFont(ofSize: 7.5, weight: .regular)
     private static let arrowColumnWidth = textWidth("↑", font: baseSpeedFont)
-    private static let stableRateColumnWidth = textWidth("9999", font: prominentSpeedFont)
-    private static let stableUnitColumnWidth = textWidth("GB/s", font: prominentSpeedFont)
+    /// 紧凑上限：数字最多三位；单位取三档里最宽者，避免日常两位数左侧大空白，同时刷新外框仍固定。
+    private static let stableRateColumnWidth = textWidth("999", font: prominentSpeedFont)
+    private static let stableUnitColumnWidth = max(
+        textWidth("KB/s", font: prominentSpeedFont),
+        textWidth("MB/s", font: prominentSpeedFont),
+        textWidth("GB/s", font: prominentSpeedFont)
+    )
     static let networkWidth = stableRateColumnWidth + readingGap + stableUnitColumnWidth + unitColumnGap + arrowColumnWidth
 
     static func image(

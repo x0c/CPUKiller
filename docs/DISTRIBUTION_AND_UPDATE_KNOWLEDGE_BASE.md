@@ -78,6 +78,11 @@ flowchart TD
 
 发布脚本对公开更新清单和 Homebrew 配方都有版本回退保护。公开仓远端传输失败不等于本地签名或公证失效：应从公开快照、Release、cask 或匿名终检的失败环节续跑，不重新公证已经通过的同一产物。
 
+**【排错 2026-09-05】并发发版与 raw CDN 终检】**
+
+- 同一工作树禁止并行跑 `publish-release.sh`：两个实例会抢同一 `Release` 产物目录，重签过程中打出的 zip 会出现「The signature of the binary is invalid」，苹果公证直接 `Invalid`。发版前先确认没有第二个脚本 / `notarytool submit`；本机可用互斥锁或看板「发布中」条目互斥。
+- 匿名终检读的是 `https://raw.githubusercontent.com/.../appcast.xml`。GitHub `main` 与 `gh api .../contents/appcast.xml` 已含新内部构建号、但 raw 仍是旧条目时，多半是 CDN 未刷到（常见几十秒到一两分钟），不要据此回滚或重签；用 `gh api` / `git show github/main:appcast.xml` 核对真源后稍等再终检。Release 附件与 Homebrew cask 已上传成功时，只重跑终检即可。
+
 ## §2.5 物理路径速查
 
 | 目录或文件（相对项目根） | 内容 | 关键类或文件 |

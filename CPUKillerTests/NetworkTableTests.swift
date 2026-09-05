@@ -47,22 +47,87 @@ final class NetworkTableRankingTests: XCTestCase {
         XCTAssertEqual(visible.first?.downloadBytesPerSecond, 90)
     }
 
+    func testRecentlyActiveRowSurvivesZeroRateSample() {
+        let chrome = makeProcess(name: "Google Chrome", pid: 42)
+        let now = Date(timeIntervalSince1970: 1_000)
+        let active = NetworkListPresence.rows(
+            processes: [chrome],
+            rates: [42: ProcessNetworkRate(receivedBytesPerSecond: 8_192, sentBytesPerSecond: 0)],
+            holdUntil: [:],
+            now: now
+        )
+        XCTAssertEqual(active.rows.map(\.displayName), ["Google Chrome"])
+        XCTAssertEqual(active.rows.first?.downloadBytesPerSecond, 8_192)
+
+        let quiet = NetworkListPresence.rows(
+            processes: [chrome],
+            rates: [:],
+            holdUntil: active.holdUntil,
+            now: now.addingTimeInterval(2)
+        )
+        XCTAssertEqual(quiet.rows.map(\.displayName), ["Google Chrome"])
+        XCTAssertEqual(quiet.rows.first?.downloadBytesPerSecond, 0)
+        XCTAssertEqual(quiet.rows.first?.uploadBytesPerSecond, 0)
+    }
+
+    func testHoldExpiresAfterFiveSecondsWithoutTraffic() {
+        let chrome = makeProcess(name: "Google Chrome", pid: 42)
+        let now = Date(timeIntervalSince1970: 1_000)
+        let active = NetworkListPresence.rows(
+            processes: [chrome],
+            rates: [42: ProcessNetworkRate(receivedBytesPerSecond: 1_024, sentBytesPerSecond: 0)],
+            holdUntil: [:],
+            now: now
+        )
+        let expired = NetworkListPresence.rows(
+            processes: [chrome],
+            rates: [:],
+            holdUntil: active.holdUntil,
+            now: now.addingTimeInterval(NetworkListPresence.holdDuration + 0.01)
+        )
+        XCTAssertTrue(expired.rows.isEmpty)
+        XCTAssertTrue(expired.holdUntil.isEmpty)
+    }
+
+    func testDeadProcessIsRemovedEvenDuringHold() {
+        let chrome = makeProcess(name: "Google Chrome", pid: 42)
+        let now = Date(timeIntervalSince1970: 1_000)
+        let active = NetworkListPresence.rows(
+            processes: [chrome],
+            rates: [42: ProcessNetworkRate(receivedBytesPerSecond: 1_024, sentBytesPerSecond: 0)],
+            holdUntil: [:],
+            now: now
+        )
+        let gone = NetworkListPresence.rows(
+            processes: [],
+            rates: [:],
+            holdUntil: active.holdUntil,
+            now: now.addingTimeInterval(1)
+        )
+        XCTAssertTrue(gone.rows.isEmpty)
+        XCTAssertTrue(gone.holdUntil.isEmpty)
+    }
+
     private func makeRow(name: String, upload: Double, download: Double) -> NetworkProcessRow {
         NetworkProcessRow(
-            process: ProcessRow(
-                id: name,
-                displayName: name,
-                bundlePath: nil,
-                iconPath: nil,
-                memberPIDs: [1],
-                cpuPercent: 0,
-                memoryPercent: 0,
-                kind: .other,
-                isCurrentUser: true,
-                isSystemProtected: false
-            ),
+            process: makeProcess(name: name, pid: 1),
             uploadBytesPerSecond: upload,
             downloadBytesPerSecond: download
+        )
+    }
+
+    private func makeProcess(name: String, pid: pid_t) -> ProcessRow {
+        ProcessRow(
+            id: name,
+            displayName: name,
+            bundlePath: nil,
+            iconPath: nil,
+            memberPIDs: [pid],
+            cpuPercent: 0,
+            memoryPercent: 0,
+            kind: .other,
+            isCurrentUser: true,
+            isSystemProtected: false
         )
     }
 }
