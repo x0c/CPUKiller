@@ -34,29 +34,22 @@ enum MenuBarIconRenderer {
     private static let menuBarHeight: CGFloat = 22
     private static let visualBlockHeight: CGFloat = 17
     private static let visualBlockInset = (menuBarHeight - visualBlockHeight) / 2
-    private static let speedGap: CGFloat = 2
     private static let readingGap: CGFloat = 2
     private static let unitColumnGap: CGFloat = 2
     private static let baseSpeedFont = NSFont.monospacedDigitSystemFont(ofSize: 8.5, weight: .regular)
     private static let prominentSpeedFont = NSFont.monospacedDigitSystemFont(ofSize: 9.5, weight: .regular)
     private static let secondarySpeedFont = NSFont.monospacedDigitSystemFont(ofSize: 7.5, weight: .regular)
     private static let arrowColumnWidth = textWidth("↑", font: baseSpeedFont)
-    private static let rateColumnWidth = textWidth("9999", font: prominentSpeedFont)
-    private static let unitColumnWidth = textWidth("GB/s", font: prominentSpeedFont)
+    private static let stableRateColumnWidth = textWidth("9999", font: prominentSpeedFont)
+    private static let stableUnitColumnWidth = textWidth("GB/s", font: prominentSpeedFont)
+    static let networkWidth = stableRateColumnWidth + readingGap + stableUnitColumnWidth + unitColumnGap + arrowColumnWidth
 
     static func image(
         cpuPercent: Double,
-        memoryPercent: Double,
-        uploadBytesPerSecond: Double?,
-        downloadBytesPerSecond: Double?,
-        showsNetworkSpeed: Bool,
-        layout: MenuBarLayout = .ringsOnLeft
+        memoryPercent: Double
     ) -> NSImage {
-        let width = showsNetworkSpeed
-            ? pointSize + speedGap + rateColumnWidth + readingGap + unitColumnWidth + unitColumnGap + arrowColumnWidth
-            : pointSize
         let image = NSImage(
-            size: NSSize(width: width, height: menuBarHeight),
+            size: NSSize(width: pointSize, height: menuBarHeight),
             flipped: false
         ) { rect in
             guard let context = NSGraphicsContext.current?.cgContext else {
@@ -67,10 +60,7 @@ enum MenuBarIconRenderer {
             defer { context.restoreGState() }
 
             context.setShouldAntialias(true)
-            let speedWidth = width - pointSize - speedGap
-            let ringX = layout == .ringsOnLeft || !showsNetworkSpeed ? 0 : speedWidth + speedGap
-            let speedX = layout == .ringsOnLeft ? pointSize + speedGap : 0
-            let center = CGPoint(x: ringX + pointSize / 2, y: rect.midY)
+            let center = CGPoint(x: pointSize / 2, y: rect.midY)
             drawRing(
                 in: context,
                 center: center,
@@ -83,14 +73,6 @@ enum MenuBarIconRenderer {
                 radius: innerRadius,
                 progress: memoryPercent
             )
-            if showsNetworkSpeed {
-                drawNetworkSpeed(
-                    uploadBytesPerSecond: uploadBytesPerSecond,
-                    downloadBytesPerSecond: downloadBytesPerSecond,
-                    originX: speedX,
-                    using: context
-                )
-            }
             return true
         }
         image.isTemplate = true
@@ -101,6 +83,10 @@ enum MenuBarIconRenderer {
         uploadBytesPerSecond: Double?,
         downloadBytesPerSecond: Double?
     ) -> NSImage {
+        let networkLayout = makeNetworkLayout(
+            uploadBytesPerSecond: uploadBytesPerSecond,
+            downloadBytesPerSecond: downloadBytesPerSecond
+        )
         let image = NSImage(
             size: NSSize(width: networkWidth, height: menuBarHeight),
             flipped: false
@@ -112,8 +98,7 @@ enum MenuBarIconRenderer {
             defer { context.restoreGState() }
             context.setShouldAntialias(true)
             drawNetworkSpeed(
-                uploadBytesPerSecond: uploadBytesPerSecond,
-                downloadBytesPerSecond: downloadBytesPerSecond,
+                layout: networkLayout,
                 originX: 0,
                 using: context
             )
@@ -123,22 +108,10 @@ enum MenuBarIconRenderer {
         return image
     }
 
-    private static func imageWidth(showsNetworkSpeed: Bool) -> CGFloat {
-        showsNetworkSpeed
-            ? pointSize + speedGap + networkWidth
-            : pointSize
-    }
-
-    private static var networkWidth: CGFloat {
-        rateColumnWidth + readingGap + unitColumnWidth + unitColumnGap + arrowColumnWidth
-    }
-
-    private static func drawNetworkSpeed(
+    private static func makeNetworkLayout(
         uploadBytesPerSecond: Double?,
-        downloadBytesPerSecond: Double?,
-        originX: CGFloat,
-        using context: CGContext
-    ) {
+        downloadBytesPerSecond: Double?
+    ) -> NetworkLayout {
         let reading = NetworkRateFormatter.pair(
             uploadBytesPerSecond: uploadBytesPerSecond,
             downloadBytesPerSecond: downloadBytesPerSecond
@@ -159,18 +132,32 @@ enum MenuBarIconRenderer {
             arrow: "↓",
             readingFont: speedFont(for: .download, emphasis: emphasis)
         )
-        let arrowX = originX + rateColumnWidth + readingGap + unitColumnWidth + unitColumnGap
-        let unitRightX = arrowX - unitColumnGap
-        let baselines = edgeAnchoredBaselines(topLine: topLine, bottomLine: bottomLine, context: context)
-        let topRateRightX = leftEdge(of: topLine.unit, rightAlignedAt: unitRightX, in: context) - readingGap
-        let bottomRateRightX = leftEdge(of: bottomLine.unit, rightAlignedAt: unitRightX, in: context) - readingGap
+        return NetworkLayout(
+            topLine: topLine,
+            bottomLine: bottomLine,
+            rateColumnWidth: stableRateColumnWidth,
+            unitColumnWidth: stableUnitColumnWidth,
+            arrowColumnWidth: arrowColumnWidth
+        )
+    }
 
-        draw(topLine.rate, at: topRateRightX, baselineY: baselines.top, alignment: .right, in: context)
-        draw(bottomLine.rate, at: bottomRateRightX, baselineY: baselines.bottom, alignment: .right, in: context)
-        draw(topLine.unit, at: unitRightX, baselineY: baselines.top, alignment: .right, in: context)
-        draw(bottomLine.unit, at: unitRightX, baselineY: baselines.bottom, alignment: .right, in: context)
-        draw(topLine.arrow, at: arrowX + arrowColumnWidth, baselineY: baselines.top, alignment: .right, in: context)
-        draw(bottomLine.arrow, at: arrowX + arrowColumnWidth, baselineY: baselines.bottom, alignment: .right, in: context)
+    private static func drawNetworkSpeed(
+        layout: NetworkLayout,
+        originX: CGFloat,
+        using context: CGContext
+    ) {
+        let arrowX = originX + layout.rateColumnWidth + readingGap + layout.unitColumnWidth + unitColumnGap
+        let unitRightX = arrowX - unitColumnGap
+        let baselines = edgeAnchoredBaselines(topLine: layout.topLine, bottomLine: layout.bottomLine, context: context)
+        let topRateRightX = leftEdge(of: layout.topLine.unit, rightAlignedAt: unitRightX, in: context) - readingGap
+        let bottomRateRightX = leftEdge(of: layout.bottomLine.unit, rightAlignedAt: unitRightX, in: context) - readingGap
+
+        draw(layout.topLine.rate, at: topRateRightX, baselineY: baselines.top, alignment: .right, in: context)
+        draw(layout.bottomLine.rate, at: bottomRateRightX, baselineY: baselines.bottom, alignment: .right, in: context)
+        draw(layout.topLine.unit, at: unitRightX, baselineY: baselines.top, alignment: .right, in: context)
+        draw(layout.bottomLine.unit, at: unitRightX, baselineY: baselines.bottom, alignment: .right, in: context)
+        draw(layout.topLine.arrow, at: arrowX + layout.arrowColumnWidth, baselineY: baselines.top, alignment: .right, in: context)
+        draw(layout.bottomLine.arrow, at: arrowX + layout.arrowColumnWidth, baselineY: baselines.bottom, alignment: .right, in: context)
     }
 
     private static func makeTextLine(
@@ -243,6 +230,15 @@ enum MenuBarIconRenderer {
         context.textPosition = .zero
         defer { context.textPosition = previousTextPosition }
         return CTLineGetImageBounds(line, context)
+    }
+
+    private struct NetworkLayout {
+        let topLine: NetworkTextLine
+        let bottomLine: NetworkTextLine
+        let rateColumnWidth: CGFloat
+        let unitColumnWidth: CGFloat
+        let arrowColumnWidth: CGFloat
+
     }
 
     private struct NetworkTextLine {

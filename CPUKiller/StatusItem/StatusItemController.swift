@@ -7,16 +7,9 @@ enum StatusItemPanelTarget: Equatable {
     case networkDownload
 }
 
-/// 系统状态栏会从右向左接纳后来加入的项目；这里明确两项的创建顺序，保证偏好改变后左右位置立即一致。
+/// 系统状态栏会从右向左接纳后来加入的项目；固定创建顺序，保证圆环在左、网速在右。
 extension StatusItemPanelTarget {
-    static func statusItemCreationOrder(for layout: MenuBarLayout) -> [StatusItemPanelTarget] {
-        switch layout {
-        case .ringsOnLeft:
-            return [.networkDownload, .process]
-        case .speedOnLeft:
-            return [.process, .networkDownload]
-        }
-    }
+    static let statusItemCreationOrder: [StatusItemPanelTarget] = [.networkDownload, .process]
 }
 
 /// 本地状态项：菜单栏图标是动态双环，不能换成静态图。左右键分发仍在这里，左键永不弹菜单。
@@ -57,21 +50,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     private lazy var showNetworkSpeedItem = NSMenuItem(
         title: String(localized: "menu.showNetworkSpeed"),
         action: #selector(toggleNetworkSpeed(_:)),
-        keyEquivalent: ""
-    )
-    private lazy var menuBarLayoutItem = NSMenuItem(
-        title: String(localized: "menu.menuBarLayout"),
-        action: nil,
-        keyEquivalent: ""
-    )
-    private lazy var ringsOnLeftItem = NSMenuItem(
-        title: String(localized: "menu.ringsOnLeft"),
-        action: #selector(showRingsOnLeft(_:)),
-        keyEquivalent: ""
-    )
-    private lazy var speedOnLeftItem = NSMenuItem(
-        title: String(localized: "menu.speedOnLeft"),
-        action: #selector(showSpeedOnLeft(_:)),
         keyEquivalent: ""
     )
     private lazy var openMainWindowItem = NSMenuItem(
@@ -141,7 +119,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         }
         activeStatusItem = nil
 
-        for target in StatusItemPanelTarget.statusItemCreationOrder(for: displayPreferences.layout) {
+        for target in StatusItemPanelTarget.statusItemCreationOrder {
             let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
             configureButton(item.button, target: target)
             switch target {
@@ -152,6 +130,8 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             }
         }
 
+        ringStatusItem.length = MenuBarIconRenderer.pointSize
+        networkStatusItem.length = MenuBarIconRenderer.networkWidth
         renderStatusItem()
         applyIconVisibility(MenuBarIconStore.shared.isVisible)
     }
@@ -193,8 +173,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             launchAtLoginItem,
             openLoginItemsItem,
             showNetworkSpeedItem,
-            ringsOnLeftItem,
-            speedOnLeftItem,
             hideIconItem,
             settingsItem,
             checkForUpdatesItem,
@@ -203,15 +181,11 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             item.target = self
         }
         menu.delegate = self
-        let layoutMenu = NSMenu()
-        layoutMenu.items = [ringsOnLeftItem, speedOnLeftItem]
-        menuBarLayoutItem.submenu = layoutMenu
         menu.items = [
             openMainWindowItem,
             launchAtLoginItem,
             openLoginItemsItem,
             showNetworkSpeedItem,
-            menuBarLayoutItem,
             hideIconItem,
             settingsItem,
             checkForUpdatesItem,
@@ -225,8 +199,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         launchAtLoginItem.state = menuState(for: launchAtLogin.status)
         openLoginItemsItem.isHidden = !launchAtLogin.requiresApproval
         showNetworkSpeedItem.state = displayPreferences.showsNetworkSpeed ? .on : .off
-        ringsOnLeftItem.state = displayPreferences.layout == .ringsOnLeft ? .on : .off
-        speedOnLeftItem.state = displayPreferences.layout == .speedOnLeft ? .on : .off
     }
 
     @objc
@@ -265,16 +237,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     }
 
     @objc
-    private func showRingsOnLeft(_ sender: Any?) {
-        displayPreferences.layout = .ringsOnLeft
-    }
-
-    @objc
-    private func showSpeedOnLeft(_ sender: Any?) {
-        displayPreferences.layout = .speedOnLeft
-    }
-
-    @objc
     private func hideMenuBarIcon(_ sender: Any?) {
         onHideMenuBarIcon()
     }
@@ -310,13 +272,9 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     private func renderStatusItem() {
         let ringImage = MenuBarIconRenderer.image(
             cpuPercent: cpuPercent,
-            memoryPercent: memoryPercent,
-            uploadBytesPerSecond: uploadBytesPerSecond,
-            downloadBytesPerSecond: downloadBytesPerSecond,
-            showsNetworkSpeed: false
+            memoryPercent: memoryPercent
         )
         ringImage.isTemplate = true
-        ringStatusItem.length = ringImage.size.width
         ringStatusItem.button?.image = ringImage
 
         let networkImage = MenuBarIconRenderer.networkImage(
@@ -324,7 +282,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             downloadBytesPerSecond: downloadBytesPerSecond
         )
         networkImage.isTemplate = true
-        networkStatusItem.length = networkImage.size.width
         networkStatusItem.button?.image = networkImage
         networkStatusItem.isVisible = MenuBarIconStore.shared.isVisible && displayPreferences.showsNetworkSpeed
     }

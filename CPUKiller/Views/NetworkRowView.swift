@@ -23,12 +23,14 @@ struct NetworkRowView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .layoutPriority(1)
             Text(NetworkRateFormatter.text(for: row.uploadBytesPerSecond))
+                .font(.system(size: ProcessNamePresentation.bodySize))
                 .monospacedDigit()
-                .foregroundStyle(row.uploadBytesPerSecond > 0 ? Color.primary : Color.secondary)
+                .foregroundStyle(TableMetricPresentation.color(for: row.uploadBytesPerSecond, metric: .network))
                 .frame(width: AppPreferences.metricColumnWidth, alignment: .trailing)
             Text(NetworkRateFormatter.text(for: row.downloadBytesPerSecond))
+                .font(.system(size: ProcessNamePresentation.bodySize))
                 .monospacedDigit()
-                .foregroundStyle(row.downloadBytesPerSecond > 0 ? Color.primary : Color.secondary)
+                .foregroundStyle(TableMetricPresentation.color(for: row.downloadBytesPerSecond, metric: .network))
                 .frame(width: AppPreferences.metricColumnWidth, alignment: .trailing)
             endButton
         }

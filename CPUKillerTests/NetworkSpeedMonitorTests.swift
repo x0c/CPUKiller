@@ -72,44 +72,31 @@ final class NetworkSpeedMonitorTests: XCTestCase {
     }
 
     @MainActor
-    func testSpeedContrastKeepsStatusItemFrameStable() {
-        let uploadDominant = MenuBarIconRenderer.image(
-            cpuPercent: 50,
-            memoryPercent: 50,
-            uploadBytesPerSecond: 8_000,
-            downloadBytesPerSecond: 2_000,
-            showsNetworkSpeed: true
-        )
-        let downloadDominant = MenuBarIconRenderer.image(
-            cpuPercent: 50,
-            memoryPercent: 50,
-            uploadBytesPerSecond: 2_000,
-            downloadBytesPerSecond: 8_000,
-            showsNetworkSpeed: true
-        )
-        XCTAssertEqual(uploadDominant.size, downloadDominant.size)
-        XCTAssertEqual(uploadDominant.size.height, 22)
-    }
+    func testStatusItemWidthRemainsStableAcrossRefreshValues() {
+        let images = [
+            MenuBarIconRenderer.networkImage(
+                uploadBytesPerSecond: 0,
+                downloadBytesPerSecond: 3 * 1_024
+            ),
+            MenuBarIconRenderer.networkImage(
+                uploadBytesPerSecond: 999 * 1_024,
+                downloadBytesPerSecond: 999 * 1_024
+            ),
+            MenuBarIconRenderer.networkImage(
+                uploadBytesPerSecond: 2 * 1_024 * 1_024 * 1_024,
+                downloadBytesPerSecond: 0
+            ),
+            MenuBarIconRenderer.networkImage(
+                uploadBytesPerSecond: nil,
+                downloadBytesPerSecond: nil
+            )
+        ]
 
-    @MainActor
-    func testLayoutChoiceKeepsStatusItemFrameStable() {
-        let ringsOnLeft = MenuBarIconRenderer.image(
-            cpuPercent: 50,
-            memoryPercent: 50,
-            uploadBytesPerSecond: 8_000,
-            downloadBytesPerSecond: 2_000,
-            showsNetworkSpeed: true,
-            layout: .ringsOnLeft
-        )
-        let speedOnLeft = MenuBarIconRenderer.image(
-            cpuPercent: 50,
-            memoryPercent: 50,
-            uploadBytesPerSecond: 8_000,
-            downloadBytesPerSecond: 2_000,
-            showsNetworkSpeed: true,
-            layout: .speedOnLeft
-        )
-        XCTAssertEqual(ringsOnLeft.size, speedOnLeft.size)
+        XCTAssertEqual(images[0].size.width, MenuBarIconRenderer.networkWidth)
+        for image in images {
+            XCTAssertEqual(image.size, images[0].size)
+            XCTAssertEqual(image.size.height, 22)
+        }
     }
 
 }

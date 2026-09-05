@@ -3,14 +3,12 @@ import SwiftUI
 struct SettingsView: View {
     @Bindable private var launchAtLogin = LaunchAtLoginManager.shared
     @Bindable private var menuBarIcon = MenuBarIconStore.shared
-    @Bindable private var menuBarDisplay = MenuBarDisplayPreferences.shared
     @FocusState private var focused: Field?
 
     private enum Field: Hashable {
         case launch
         case openLogin
         case showIcon
-        case layout
         case checkUpdates
     }
 
@@ -64,14 +62,6 @@ struct SettingsView: View {
                     .overlay(alignment: .leading) {
                         focusMark(focused == .showIcon)
                     }
-
-                Picker(String(localized: "settings.menuBarLayout"), selection: $menuBarDisplay.layout) {
-                    Text(String(localized: "menu.ringsOnLeft")).tag(MenuBarLayout.ringsOnLeft)
-                    Text(String(localized: "menu.speedOnLeft")).tag(MenuBarLayout.speedOnLeft)
-                }
-                .pickerStyle(.radioGroup)
-                .focused($focused, equals: .layout)
-                .focusEffectDisabled()
 
                 Button(String(localized: "menu.checkForUpdates")) {
                     AppDelegate.shared?.checkForUpdates()

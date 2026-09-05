@@ -50,10 +50,24 @@ Remote：`app-macos` → GitHub 公开 [`x0c/CPUKiller`](https://github.com/x0c/
 
 - [~/.config/agentsync/docs/MACOS_APP_DEVELOPMENT_GUIDE.md](~/.config/agentsync/docs/MACOS_APP_DEVELOPMENT_GUIDE.md)：改、评审或排查 CPU Killer 的菜单栏图标、开机自启动、隐藏图标、恢复窗口或检查更新前**必读**。不读会把隐藏图标后仍需找回应用的恢复面误删，或把菜单栏入口误作进程保活机制。
 - [app-macos/AGENTS.md](app-macos/AGENTS.md)：改、评审或排查 macOS 客户端工程、菜单栏浮层、进程表、结束、覆盖安装、公开开源或发版前**必读**。不读会加回桌面进程表工作区、把菜单挂到左键上、开沙盒导致进程表空，覆盖安装把签名装坏，或把内网地址推进公开仓。
-- [app-macos/docs/PRODUCT_CONTRACT.md](app-macos/docs/PRODUCT_CONTRACT.md)：改、评审或排查菜单栏图标/模板图、隐藏图标、恢复窗口、开机自启三态或任何其他用户可见行为（人话名折行、名字列过宽、长包名省略、Chrome 显示成 `Goog...rome`、长名字减小字体、前缀省略、中间省略、整机占比、刚开机内存六十多、表头汇总、点列名排序、表出现在图标下方、掉到屏幕角落、结束边界、菜单栏点开/点外面关、刷新开关、表头顶空白、结束符号悬停钉行、检查更新入口、进程表仍显示旧图标/粉底黑叉）前**必读**。不读会把已锁体验改掉、把开机六十当泄漏去改口径、把 ChatGPT/Cursor Agent/Corral 显示回 node/Python、把隐藏图标后的恢复面做成进程表，或把系统还在吐旧图当成图标没装进去去重做。
+- [app-macos/docs/PRODUCT_CONTRACT.md](app-macos/docs/PRODUCT_CONTRACT.md)：改、评审或排查菜单栏图标/模板图、两行网速、自动识别当前网卡、隐藏图标、恢复窗口、开机自启三态或任何其他用户可见行为（人话名折行、名字列过宽、长包名省略、Chrome 显示成 `Goog...rome`、长名字减小字体、前缀省略、中间省略、整机占比、刚开机内存六十多、表头汇总、点列名排序、表出现在图标下方、掉到屏幕角落、结束边界、菜单栏点开/点外面关、刷新开关、表头顶空白、结束符号悬停钉行、检查更新入口、进程表仍显示旧图标/粉底黑叉）前**必读**。不读会把已锁体验改掉、把网速算到错误网卡上、把开机六十当泄漏去改口径、把 ChatGPT/Cursor Agent/Corral 显示回 node/Python、把隐藏图标后的恢复面做成进程表，或把系统还在吐旧图当成图标没装进去去重做。
 - [~/Codes/_standards/swift.md](../_standards/swift.md)：新建、评审或改造本 macOS 应用前**必读**。不读会偏离 Swift 6 并发基线和覆盖安装闭环。
 - [~/Codes/_standards/workspace-docs/swift-docs/macos-app-baseline.md](../_standards/workspace-docs/swift-docs/macos-app-baseline.md)：脚手架、评审完整度、补分发/开机自启/设置窗前**必读**。不读会把「第一波能跑」当成完成，或把未对外发行的暂缓当成可以永久不做。
 - [~/.config/agentsync/docs/MAC_PROCESS_IDENTITY_KNOWLEDGE_BASE.md](~/.config/agentsync/docs/MAC_PROCESS_IDENTITY_KNOWLEDGE_BASE.md)：改人话名、责任进程、整机 CPU%、折行规则前**必读**。不读会做成进程树或按 Unix 父进程建树。
+- [app-macos/docs/PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md](app-macos/docs/PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md)：改、评审或排查实时占用、人话名、排序、刷新、结束权限或终止流程前**必读**。不读会把整机口径、平表聚合或安全结束边界改错。
+- [app-macos/docs/MENU_BAR_INTERACTION_KNOWLEDGE_BASE.md](app-macos/docs/MENU_BAR_INTERACTION_KNOWLEDGE_BASE.md)：改、评审或排查菜单栏左右键、浮层锚定、网速、隐藏图标、恢复窗口、开机自启或退出前**必读**。不读会让左键误弹菜单、面板掉到角落或隐藏后无稳定入口。
+- [app-macos/docs/DISTRIBUTION_AND_UPDATE_KNOWLEDGE_BASE.md](app-macos/docs/DISTRIBUTION_AND_UPDATE_KNOWLEDGE_BASE.md)：改、评审或排查构建、签名、公证、应用内更新、GitHub Release 或 Homebrew 前**必读**。不读会把工程源、版本、签名链或公开发行边界改坏。
+- [app-macos/docs/OPERATIONS_GUIDE.md](app-macos/docs/OPERATIONS_GUIDE.md)：构建、测试、启动、覆盖安装、浮层截图验收或排查本机开发环境前**必读**。不读会在错误仓根构建、误把测试通过当安装验收、覆盖错误版本，或因状态栏浮层截不到图而误判界面没出来。
+
+## 领域地图（doc-init）
+
+<!-- 覆盖度复核基线：2026-09-04 · 源码指纹 扫描 139 文件 / Swift 28 / 0 子模块 -->
+
+| 领域 | 入口锚点 |
+|------|---------|
+| 实时占用与结束 | app-macos/CPUKiller/Services/ · app-macos/CPUKiller/Models/ · app-macos/CPUKiller/Views/ProcessTableView.swift · app-macos/CPUKiller/Views/ProcessRowView.swift · app-macos/CPUKillerTests/ProcessTableRankingTests.swift |
+| 菜单栏操作与恢复 | app-macos/CPUKiller/AppDelegate.swift · app-macos/CPUKiller/StatusItem/ · app-macos/CPUKiller/App/ · app-macos/CPUKiller/Views/SettingsView.swift |
+| 安装、更新与公开发布 | app-macos/project.yml · app-macos/Configuration/Base.xcconfig · app-macos/scripts/publish-release.sh · app-macos/appcast.xml |
 
 <!-- managed:inherited-agents:end -->
 
@@ -61,7 +75,7 @@ Remote：`app-macos` → GitHub 公开 [`x0c/CPUKiller`](https://github.com/x0c/
 
 ## 2026-09-04 状态栏分区点击：1.0.9 已在本机覆盖安装
 
-v1.0.9 / 内部构建号 20 已覆盖安装进本机「应用程序」并启动，Developer ID 签名校验通过。若圆环被错送入网络表，禁止继续叠透明子视图或调坐标阈值；必须拆成两个独立的 `NSStatusItem`，让圆环项与网速项各自只有一个系统左键动作。圆环项只进 CPU / 内存，读数项只进网络表；网络表每次打开默认 Download 降序。系统菜单栏按后来加入的项目向左排，所以默认“圆环在左，网速在右”必须先加入网速项、后加入圆环项；更改布局时按相反顺序重建两项。发布前必须在真实菜单栏验证两个入口。
+v1.0.9 / 内部构建号 20 已覆盖安装进本机「应用程序」并启动，Developer ID 签名校验通过。若圆环被错送入网络表，禁止继续叠透明子视图或调坐标阈值；必须拆成两个独立的 `NSStatusItem`，让圆环项与网速项各自只有一个系统左键动作。圆环项只进 CPU / 内存，读数项只进网络表；网络表每次打开默认 Download 降序。系统菜单栏按后来加入的项目向左排，所以固定“圆环在左，网速在右”必须先加入网速项、后加入圆环项；不提供布局切换。发布前必须在真实菜单栏验证两个入口。
 
 ## 2026-09-04 圆环入口与默认排序：1.0.4 已在本机覆盖安装
 
@@ -159,7 +173,7 @@ Debug 测试目标默认不绑主线程；应用里给测试读的常量袋必�
 - [docs/PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md](docs/PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md)：改、评审或排查实时占用、人话名、排序、刷新、结束权限或终止流程前**必读**。不读会把整机口径、平表聚合或安全结束边界改错。
 - [docs/MENU_BAR_INTERACTION_KNOWLEDGE_BASE.md](docs/MENU_BAR_INTERACTION_KNOWLEDGE_BASE.md)：改、评审或排查菜单栏左右键、浮层锚定、网速、隐藏图标、恢复窗口、开机自启或退出前**必读**。不读会让左键误弹菜单、面板掉到角落或隐藏后无稳定入口。
 - [docs/DISTRIBUTION_AND_UPDATE_KNOWLEDGE_BASE.md](docs/DISTRIBUTION_AND_UPDATE_KNOWLEDGE_BASE.md)：改、评审或排查构建、签名、公证、应用内更新、GitHub Release 或 Homebrew 前**必读**。不读会把工程源、版本、签名链或公开发行边界改坏。
-- [docs/OPERATIONS_GUIDE.md](docs/OPERATIONS_GUIDE.md)：构建、测试、启动、覆盖安装或排查本机开发环境前**必读**。不读会在错误仓根构建、误把测试通过当安装验收，或覆盖错误版本。
+- [docs/OPERATIONS_GUIDE.md](docs/OPERATIONS_GUIDE.md)：构建、测试、启动、覆盖安装、浮层截图验收或排查本机开发环境前**必读**。不读会在错误仓根构建、误把测试通过当安装验收、覆盖错误版本，或因状态栏浮层截不到图而误判界面没出来。
 
 ## 领域地图（doc-init）
 

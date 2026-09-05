@@ -6,6 +6,15 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     <channel>
         <title>CPU Killer</title>
         <item>
+            <title>1.0.11</title>
+            <pubDate>Sat, 05 Sep 2026 16:29:59 +0800</pubDate>
+            <link>https://github.com/x0c/CPUKiller</link>
+            <sparkle:version>22</sparkle:version>
+            <sparkle:shortVersionString>1.0.11</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/x0c/CPUKiller/releases/download/v1.0.11/CPU-Killer-1.0.11.zip" length="3630774" type="application/octet-stream" sparkle:edSignature="+HwUqI4sFnMXT5Gr7lgGxYEGioJTqQxSAGaMATaofv6yYn0GHkLfNs5nCKVVCek1QC8YPVank2sY2CXuNL5UBA=="/>
+        </item>
+        <item>
             <title>1.0.9</title>
             <pubDate>Fri, 04 Sep 2026 23:53:43 +0800</pubDate>
             <link>https://github.com/x0c/CPUKiller</link>
@@ -62,6 +71,6 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     </channel>
 </rss>
 <!-- sparkle-signatures:
-edSignature: UNlAZiwTuU2hWbqqKvb8T0tGDWmmPnpqVt1G7SNelxkeiSmv6mgL/T8ts8+RX9vhUzRV5t8nHxcTgAgFiD0QCQ==
-length: 4382
+edSignature: uUB+esFPlg6O04n2pao9/Q0Rn95/rbrGEwPyLCABEjICMQV4RHbdTq5EM1XVB5H9/M4eNyV7f6/f3aa9nRTHCw==
+length: 5044
 -->

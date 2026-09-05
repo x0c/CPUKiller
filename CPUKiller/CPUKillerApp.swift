@@ -10,8 +10,7 @@ struct CPUKillerApp: App {
         UserDefaults.standard.register(defaults: [
             "NSAutoFillHeuristicControllerEnabled": false,
             AppPreferences.refreshEnabledKey: AppPreferences.refreshEnabledDefault,
-            AppPreferences.showNetworkSpeedKey: AppPreferences.showNetworkSpeedDefault,
-            AppPreferences.menuBarLayoutKey: AppPreferences.menuBarLayoutDefault.rawValue
+            AppPreferences.showNetworkSpeedKey: AppPreferences.showNetworkSpeedDefault
         ])
     }
 

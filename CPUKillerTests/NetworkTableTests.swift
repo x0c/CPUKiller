@@ -72,10 +72,7 @@ final class StatusItemPanelTargetTests: XCTestCase {
     func testRingAndNetworkUseSeparateStatusImages() {
         let ringImage = MenuBarIconRenderer.image(
             cpuPercent: 0,
-            memoryPercent: 0,
-            uploadBytesPerSecond: nil,
-            downloadBytesPerSecond: nil,
-            showsNetworkSpeed: false
+            memoryPercent: 0
         )
         let networkImage = MenuBarIconRenderer.networkImage(
             uploadBytesPerSecond: nil,
@@ -90,14 +87,10 @@ final class StatusItemPanelTargetTests: XCTestCase {
         XCTAssertEqual(NetworkListModel.defaultSortColumn, .download)
     }
 
-    func testMenuBarLayoutCreatesItemsInReverseVisualOrder() {
+    func testMenuBarItemsUseFixedVisualOrder() {
         XCTAssertEqual(
-            StatusItemPanelTarget.statusItemCreationOrder(for: .ringsOnLeft),
+            StatusItemPanelTarget.statusItemCreationOrder,
             [.networkDownload, .process]
-        )
-        XCTAssertEqual(
-            StatusItemPanelTarget.statusItemCreationOrder(for: .speedOnLeft),
-            [.process, .networkDownload]
         )
     }
 

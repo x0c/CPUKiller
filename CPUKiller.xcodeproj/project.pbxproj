@@ -47,6 +47,7 @@
 		E9794DF90853929985A2F96A /* MenuBarIconRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43B5BB53CABF75E76E5C3ACE /* MenuBarIconRenderer.swift */; };
 		E9BBAAB18D6CB56429374A59 /* MacKitCore in Frameworks */ = {isa = PBXBuildFile; productRef = 66252862EDD6E45D1FB86A75 /* MacKitCore */; };
 		FA0FE6FB8B52C7EBFBA95C97 /* ProcessRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8426D6E9C976724BA9DC7677 /* ProcessRow.swift */; };
+		FDFE8E22522B403CE944A167 /* TableMetricPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C827067959B97A55CD7239E /* TableMetricPresentationTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +96,7 @@
 		4A87FCE64F04EFA838D052D4 /* PanelPlacementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelPlacementTests.swift; sourceTree = "<group>"; };
 		4B9BA16EBF96F1817AD833DF /* direction-05-pressed-chip-cell-corrected.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "direction-05-pressed-chip-cell-corrected.png"; sourceTree = "<group>"; };
 		4C21B9BEF3BDC0545CDFB82C /* memory-02-fuse.svg */ = {isa = PBXFileReference; path = "memory-02-fuse.svg"; sourceTree = "<group>"; };
+		4C827067959B97A55CD7239E /* TableMetricPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableMetricPresentationTests.swift; sourceTree = "<group>"; };
 		4C8C0A454E780E565D037CF2 /* NetworkListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkListModel.swift; sourceTree = "<group>"; };
 		4E30945C03E03E44441BFAFC /* PRODUCT_CONTRACT.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PRODUCT_CONTRACT.md; sourceTree = "<group>"; };
 		51738DD6AFE6E863657108D5 /* cell-1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cell-1.png"; sourceTree = "<group>"; };
@@ -295,6 +297,7 @@
 				0E3B10C2DB2C0DE6C0A9FE7C /* NetworkTableTests.swift */,
 				4A87FCE64F04EFA838D052D4 /* PanelPlacementTests.swift */,
 				F9059CF651F786CCFDB7D422 /* ProcessTableRankingTests.swift */,
+				4C827067959B97A55CD7239E /* TableMetricPresentationTests.swift */,
 			);
 			path = CPUKillerTests;
 			sourceTree = "<group>";
@@ -618,6 +621,7 @@
 				653101A658121D67E1F29F18 /* NetworkTableTests.swift in Sources */,
 				9C46E971CC52BD49F22F1BAC /* PanelPlacementTests.swift in Sources */,
 				99A86BF401076A156168336D /* ProcessTableRankingTests.swift in Sources */,
+				FDFE8E22522B403CE944A167 /* TableMetricPresentationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -735,7 +739,7 @@
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 22;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = SHZQ3MWP3B;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -751,7 +755,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.9;
+				MARKETING_VERSION = 1.0.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
@@ -880,7 +884,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 22;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = SHZQ3MWP3B;
 				ENABLE_HARDENED_RUNTIME = NO;
@@ -902,7 +906,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.9;
+				MARKETING_VERSION = 1.0.11;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
