@@ -158,6 +158,47 @@ final class StatusItemPanelTargetTests: XCTestCase {
         )
     }
 
+    func testRingTemplateKeepsConcentricInkNearCenter() {
+        let image = MenuBarIconRenderer.image(cpuPercent: 75, memoryPercent: 40)
+        guard let rep = image.representations.compactMap({ $0 as? NSBitmapImageRep }).first else {
+            return XCTFail("圆环模板必须有位图表示")
+        }
+        let width = rep.pixelsWide
+        let height = rep.pixelsHigh
+        XCTAssertGreaterThan(width, 8)
+        XCTAssertGreaterThan(height, 8)
+
+        var inkCount = 0
+        var inkSumX = 0
+        var inkSumY = 0
+        var cornerInk = 0
+        let corner = max(2, min(width, height) / 8)
+        for y in 0..<height {
+            for x in 0..<width {
+                guard let color = rep.colorAt(x: x, y: y) else { continue }
+                var alpha: CGFloat = 0
+                color.getRed(nil, green: nil, blue: nil, alpha: &alpha)
+                guard alpha > 0.05 else { continue }
+                inkCount += 1
+                inkSumX += x
+                inkSumY += y
+                if x < corner || y < corner || x >= width - corner || y >= height - corner {
+                    cornerInk += 1
+                }
+            }
+        }
+        XCTAssertGreaterThan(inkCount, 20, "圆环应留下可见墨迹")
+        let meanX = Double(inkSumX) / Double(inkCount)
+        let meanY = Double(inkSumY) / Double(inkCount)
+        XCTAssertEqual(meanX, Double(width) / 2, accuracy: Double(width) * 0.2, "墨迹重心应靠近画布中心，不能被错误缩放挤到一角")
+        XCTAssertEqual(meanY, Double(height) / 2, accuracy: Double(height) * 0.25, "墨迹重心应靠近画布中心，不能被错误缩放挤到一角")
+        XCTAssertLessThan(
+            Double(cornerInk) / Double(inkCount),
+            0.45,
+            "墨迹不应主要堆在四角——那是 scaleBy(Retina) 把圆环放大裁切后的典型症状"
+        )
+    }
+
     func testNetworkTableDefaultsToDownloadOrder() {
         XCTAssertEqual(NetworkListModel.defaultSortColumn, .download)
     }

@@ -23,8 +23,8 @@ settings:
     MACOSX_DEPLOYMENT_TARGET: "26.0"
     CODE_SIGN_STYLE: Automatic
     DEVELOPMENT_TEAM: SHZQ3MWP3B
-    CURRENT_PROJECT_VERSION: 28
-    MARKETING_VERSION: 1.0.17
+    CURRENT_PROJECT_VERSION: 29
+    MARKETING_VERSION: 1.0.18
     COMBINE_HIDPI_IMAGES: YES
     SWIFT_EMIT_LOC_STRINGS: YES
     SWIFT_STRICT_CONCURRENCY: complete
@@ -109,6 +109,10 @@ targets:
         product: MacKitLaunchAtLogin
       - package: MacKit
         product: MacKitLifecycle
+      - package: MacKit
+        product: MacKitOverlay
+      - package: MacKit
+        product: MacKitUpdater
 
   CPUKillerTests:
     type: bundle.unit-test
@@ -129,6 +133,8 @@ targets:
         BUNDLE_LOADER: $(TEST_HOST)
     dependencies:
       - target: CPUKiller
+      - package: MacKit
+        product: MacKitCore
 
 schemes:
   CPUKiller:

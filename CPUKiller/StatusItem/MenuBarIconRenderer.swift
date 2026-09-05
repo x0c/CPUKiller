@@ -90,6 +90,9 @@ enum MenuBarIconRenderer {
     }
 
     /// 动态菜单栏图：纯黑 + alpha 画进位图，交给系统按菜单栏明暗着色。
+    ///
+    /// `NSGraphicsContext(bitmapImageRep:)` 的坐标系已经按 `rep.size`（点）映射到像素，
+    /// **禁止再 `scaleBy(backingScaleFactor)`**——否则图案被放大裁切，圆环会变成 Wi‑Fi 弧。
     private static func makeTemplateImage(
         size: NSSize,
         draw: (CGContext, NSRect) -> Void
@@ -127,8 +130,6 @@ enum MenuBarIconRenderer {
         context.saveGState()
         defer { context.restoreGState() }
         context.setShouldAntialias(true)
-        // 位图上下文原点在左下、单位是像素；缩放到点坐标后再画。
-        context.scaleBy(x: scale, y: scale)
         context.clear(CGRect(origin: .zero, size: size))
         draw(context, NSRect(origin: .zero, size: size))
 

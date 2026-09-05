@@ -215,6 +215,7 @@ graph TD
 - 【排版锁定】`MenuBarIconRenderer.drawNetworkSpeed()` 的上行永远在上并显示 `↑`，下行永远在下并显示 `↓` -> 若视觉位置颠倒，修纵向基线或布局边界，不得交换两个读数或箭头掩盖问题（原因：方向语义不能由大小或坐标猜测）。
 - 【排版锁定】每次读数以较大方向选共同 `KB/s`、`MB/s` 或 `GB/s`，另一行不足共同单位显示 `<1`；数字与本行单位留固定 2pt 间隔，顺序固定为数字、单位、箭头 -> 不得把单位拆跨行、只显示 K/M/G、把 `<1` 四舍五入成 `1`，或强行让两行数字右对齐（原因：可读性与方向映射都有明确口径）。
 - **【排错结论 2026-09-05】网速刷新抖动与左侧大空白**：外框固定且只按紧凑上限预留（数字列 `999` + `KB/s`/`MB/s`/`GB/s` 最宽者）；格式化不得吐四位整数（满 `1000` 升单位）；只在状态项重建时设固定长度，刷新只换图像；短读数空位只在数字列左侧。跨产品「勿按字形每次改 length / 勿过大防抖预留」见全局；本条是本产品紧凑上限数字。
+- **【排错结论 2026-09-05】双环/网速跟邻图标黑白不一致，或圆环被裁成 Wi‑Fi 弧**：黑白由系统按模板图上色，禁止手猜深浅色。动态重绘须先栅格成位图再 `isTemplate`；位图上下文禁止再 `scaleBy(Retina)`（会放大裁切）。权威在全局 `macos-appkit-gotchas` / `MACOS_APP_DEVELOPMENT_GUIDE`；本产品入口 `MenuBarIconRenderer.makeTemplateImage`。
 - 【排版锁定】较快方向数字+单位 **9.5pt**，较慢 **7.5pt**；箭头始终 **8.5pt**；两方向相同或缺样本时两行恢复 8.5pt。改字号必须仍让两行可见字形分别贴齐共同 17pt 布局框的上、下边缘，并保持双环垂直中线（原因：速度对比不能造成菜单栏跳动或假对齐）。禁止交换读数/箭头修倒置。
 - **AI 易错点**【禁止藏图标 / 登录静默】产品无隐藏项；启动须 `removeObject(menuBar.iconVisible)` 并强制圆环可见；登录拉起走 `LoginLaunchDetector` + `MenuBarReopenPolicy`。细则权威在全局菜单栏指南，勿在本仓另立一套。
 - 【隐性依赖】恢复窗口的位置和尺寸应交给 `SettingsWindowController.show()` 的自动保存名处理 -> 只对带标题栏恢复窗保存，禁止把短暂进程表浮层变成会记忆位置的桌面窗口（原因：两种窗口角色不同）。
@@ -232,6 +233,7 @@ graph TD
 | 改面板尺寸或圆角 | `AppPreferences.compactSize`、`CompactPanel.position()`、`PanelPlacement.origin()` | 只改视图尺寸，不改定位边界或常显滚动条空间 | 正常、多屏、边缘锚定下均不越界，不损害常见应用名阅读 |
 | 改点外关闭 | `CompactPanel.installOutsideClickMonitor()`、`PanelDismiss.shouldHide()` | 监听器未移除，或把状态项点击当面板外点击 | 收起后无残留监听器；面板与状态项均保留 |
 | 改双环数据 | `StatusItemController.updateMetrics()`、`MenuBarIconRenderer.image()`、进程监控 KB | 冻结列表时停止双环，或把进程行内存相加 | 双环持续刷新并沿用监控域的整机口径 |
+| 改双环/网速绘制 | `MenuBarIconRenderer.makeTemplateImage()`、模板测例 | 只用 drawingHandler、或位图上下文再 scaleBy(Retina) | 与邻图标同色相；形状仍是同心双环（非 Wi‑Fi 弧） |
 | 改网速字号或对齐 | `MenuBarIconRenderer.drawNetworkSpeed()`、`edgeAnchoredBaselines()`、网速测试 | 通过交换读数修倒置、强行右对齐两行数字、让外框跟随当前字形变化 | 方向固定、单位完整、固定状态项外框与最右箭头列、数字贴本行单位、共同布局框中线对齐 |
 | 改网速来源或周期 | `NetworkSpeedMonitor.start()`、`setDefaultInterface()`、`sample()` | 累加多接口、接口切换后显示旧速率、关闭显示即停止采样 | 只用默认出口，切换后重取基线，隐藏显示不影响采样 |
 | 改图标入口 | `AppDelegate.applicationDidFinishLaunching()`、`StatusItemController` | 重新引入隐藏菜单项或显隐偏好 | 图标始终可见；登录静默 |
@@ -279,7 +281,8 @@ xcodebuild -project CPUKiller.xcodeproj -scheme CPUKiller \
 
 ## §8 关联文档
 
-- [产品契约](PRODUCT_CONTRACT.md)：菜单栏、网速、恢复窗口、开机自启、刷新边界和退出体验的唯一权威源；任何用户可见改动先读它。
+- 跨产品菜单栏生命周期 / AppKit 状态项 → `~/.config/agentsync/docs/MACOS_APP_DEVELOPMENT_GUIDE.md`
+- [产品契约](PRODUCT_CONTRACT.md)：本产品用户可见行为权威；任何用户可见改动先读它。
 - [进程监控与结束知识库](PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md)：修改 `ProcessListModel` 提供的整机指标、面板可见性对列表刷新的影响，或涉及结束行交互时联读；本领域只消费这些数据和可见性边界。
 - [分发与更新知识库](DISTRIBUTION_AND_UPDATE_KNOWLEDGE_BASE.md)：修改检查更新入口、更新安装中的退出例外、发布版本或自动更新行为时联读；本领域不负责签名、公证和 Release 产物。
 - [应用工程规则](../AGENTS.md)：修改菜单栏、恢复窗口、覆盖安装、开机自启、退出或公开发布前联读；其中给出构建、安装和产品边界。

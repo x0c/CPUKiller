@@ -1,3 +1,4 @@
+import MacKitCore
 import XCTest
 @testable import CPUKiller
 
@@ -179,11 +180,11 @@ final class DisplayClassifierTests: XCTestCase {
     }
 
     func testPanelDismissKeepsStatusItem() {
-        let panel = CGRect(x: 100, y: 100, width: 400, height: 400)
-        let item = CGRect(x: 900, y: 880, width: 24, height: 22)
-        XCTAssertFalse(PanelDismiss.shouldHide(click: CGPoint(x: 200, y: 200), keptFrames: [panel, item]))
-        XCTAssertFalse(PanelDismiss.shouldHide(click: CGPoint(x: 910, y: 890), keptFrames: [panel, item]))
-        XCTAssertTrue(PanelDismiss.shouldHide(click: CGPoint(x: 10, y: 10), keptFrames: [panel, item]))
+        let panel = KitRect(x: 100, y: 100, width: 400, height: 400)
+        let item = KitRect(x: 900, y: 880, width: 24, height: 22)
+        XCTAssertFalse(PanelDismissPolicy.shouldHide(click: KitPoint(x: 200, y: 200), keptFrames: [panel, item]))
+        XCTAssertFalse(PanelDismissPolicy.shouldHide(click: KitPoint(x: 910, y: 890), keptFrames: [panel, item]))
+        XCTAssertTrue(PanelDismissPolicy.shouldHide(click: KitPoint(x: 10, y: 10), keptFrames: [panel, item]))
     }
 
     private func makeProcess(

@@ -1,6 +1,7 @@
 import AppKit
 import MacKitCore
 import MacKitLifecycle
+import MacKitUpdater
 import SwiftUI
 
 @MainActor
@@ -13,7 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let networkSpeedMonitor = NetworkSpeedMonitor()
     private var statusItemController: StatusItemController?
     private var compactPanel: CompactPanel?
-    private let appUpdater = AppUpdater()
+    private let appUpdater = SparkleUpdateChecker()
     private let terminationGuard = TerminationGuard()
     private var commaMonitor: Any?
 
@@ -22,7 +23,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 图标即主入口：清掉历史显隐偏好，启动强制图标可见。
         UserDefaults.standard.removeObject(forKey: "menuBar.iconVisible")
         terminationGuard.isUpdateSessionInProgress = { [weak self] in
-            self?.appUpdater.updater.sessionInProgress ?? false
+            self?.appUpdater.isSessionInProgress ?? false
         }
 
         let panel = CompactPanel(processModel: listModel, networkModel: networkListModel)
