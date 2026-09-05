@@ -37,10 +37,13 @@ nonisolated struct ProcessRow: Identifiable, Sendable, Hashable {
     var displayName: String
     var bundlePath: String?
     var iconPath: String?
-    var memberPIDs: [pid_t]
+    /// 结束与存活检测必须用 PID+启动时刻，避免 SIGTERM 等待期间 PID 复用误杀。
+    var memberIdentities: [ProcessIdentity]
     var cpuPercent: Double
     var memoryPercent: Double
     var kind: RowKind
     var isCurrentUser: Bool
     var isSystemProtected: Bool
+
+    var memberPIDs: [pid_t] { memberIdentities.map(\.pid) }
 }

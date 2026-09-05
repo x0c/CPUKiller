@@ -2,7 +2,7 @@
 <!-- source: /Users/geraltgraham/Codes/CPUKiller/AGENTS.md -->
 # CPU Killer
 
-通用工程规范：[Swift 规范](../_standards/swift.md)
+通用工程规范：[Swift 规范](/Users/geraltgraham/Codes/_standards/swift.md)
 
 CPU Killer 是本机极简进程表：卡的时候一眼看到是谁占满整机 CPU，并立刻结束。小学生一看名字就知道干什么。
 
@@ -50,15 +50,15 @@ Remote：`app-macos` → GitHub 公开 [`x0c/CPUKiller`](https://github.com/x0c/
 ## 文档导航
 
 - [~/.config/agentsync/docs/MACOS_APP_DEVELOPMENT_GUIDE.md](~/.config/agentsync/docs/MACOS_APP_DEVELOPMENT_GUIDE.md)：改、评审或排查 CPU Killer 的菜单栏图标、开机自启动（含登录静默）、设置窗或检查更新前**必读**。不读会在登录时弹出设置窗，或误加回「隐藏菜单栏图标」。
-- [app-macos/AGENTS.md](app-macos/AGENTS.md)：改、评审或排查 macOS 客户端工程、菜单栏浮层、进程表、结束、覆盖安装、公开开源或发版前**必读**。不读会加回桌面进程表工作区、把菜单挂到左键上、开沙盒导致进程表空，覆盖安装把签名装坏，或把内网地址推进公开仓。
-- [app-macos/docs/PRODUCT_CONTRACT.md](app-macos/docs/PRODUCT_CONTRACT.md)：改、评审或排查菜单栏图标/模板图、两行网速、网速左侧空白/刷新抖动、自动识别当前网卡、隐藏图标、恢复窗口、开机自启三态或任何其他用户可见行为（人话名折行、名字列过宽、长包名省略、Chrome 显示成 `Goog...rome`、长名字减小字体、前缀省略、中间省略、整机占比、刚开机内存六十多、表头汇总、点列名排序、表出现在图标下方、掉到屏幕角落、结束边界、菜单栏点开/点外面关、刷新开关、表头顶空白、结束符号悬停钉行、检查更新入口、进程表仍显示旧图标/粉底黑叉、网络表字号色阶、网络表名单秒级闪烁/Chrome 进进出出）前**必读**。不读会把已锁体验改掉、把网速算到错误网卡上、把开机六十当泄漏去改口径、把 ChatGPT/Cursor Agent/Corral 显示回 node/Python、把隐藏图标后的恢复面做成进程表、把系统还在吐旧图当成图标没装进去去重做、把防抖又预留四位数字导致左侧大空白，或把短暂无流量的网络行秒级踢出名单。
-- [~/Codes/_standards/swift.md](../_standards/swift.md)：新建、评审或改造本 macOS 应用前**必读**。不读会偏离 Swift 6 并发基线和覆盖安装闭环。
-- [~/Codes/_standards/workspace-docs/swift-docs/macos-app-baseline.md](../_standards/workspace-docs/swift-docs/macos-app-baseline.md)：脚手架、评审完整度、补分发/开机自启/设置窗前**必读**。不读会把「第一波能跑」当成完成，或把未对外发行的暂缓当成可以永久不做。
+- [app-macos/AGENTS.md](~/Codes/CPUKiller/app-macos/AGENTS.md)：改、评审或排查 macOS 客户端工程、菜单栏浮层、进程表、结束、覆盖安装、公开开源或发版前**必读**。不读会加回桌面进程表工作区、把菜单挂到左键上、开沙盒导致进程表空，覆盖安装把签名装坏，或把内网地址推进公开仓。
+- [app-macos/docs/PRODUCT_CONTRACT.md](~/Codes/CPUKiller/app-macos/docs/PRODUCT_CONTRACT.md)：改、评审或排查菜单栏图标/模板图、两行网速、网速左侧空白/刷新抖动、自动识别当前网卡、隐藏图标、恢复窗口、开机自启三态或任何其他用户可见行为（人话名折行、名字列过宽、长包名省略、Chrome 显示成 `Goog...rome`、长名字减小字体、前缀省略、中间省略、整机占比、刚开机内存六十多、表头汇总、点列名排序、表出现在图标下方、掉到屏幕角落、结束边界、菜单栏点开/点外面关、刷新开关、表头顶空白、结束符号悬停钉行、检查更新入口、进程表仍显示旧图标/粉底黑叉、网络表字号色阶、网络表名单秒级闪烁/Chrome 进进出出）前**必读**。不读会把已锁体验改掉、把网速算到错误网卡上、把开机六十当泄漏去改口径、把 ChatGPT/Cursor Agent/Corral 显示回 node/Python、把隐藏图标后的恢复面做成进程表、把系统还在吐旧图当成图标没装进去去重做、把防抖又预留四位数字导致左侧大空白，或把短暂无流量的网络行秒级踢出名单。
+- [~/Codes/_standards/swift.md](~/Codes/_standards/swift.md)：新建、评审或改造本 macOS 应用前**必读**。不读会偏离 Swift 6 并发基线和覆盖安装闭环。
+- [~/Codes/_standards/workspace-docs/swift-docs/macos-app-baseline.md](~/Codes/_standards/workspace-docs/swift-docs/macos-app-baseline.md)：脚手架、评审完整度、补分发/开机自启/设置窗前**必读**。不读会把「第一波能跑」当成完成，或把未对外发行的暂缓当成可以永久不做。
 - [~/.config/agentsync/docs/MAC_PROCESS_IDENTITY_KNOWLEDGE_BASE.md](~/.config/agentsync/docs/MAC_PROCESS_IDENTITY_KNOWLEDGE_BASE.md)：改人话名、责任进程、整机 CPU%、折行规则前**必读**。不读会做成进程树或按 Unix 父进程建树。
-- [app-macos/docs/PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md](app-macos/docs/PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md)：改、评审或排查实时占用、人话名、排序、刷新、结束权限或终止流程前**必读**。不读会把整机口径、平表聚合或安全结束边界改错。
-- [app-macos/docs/MENU_BAR_INTERACTION_KNOWLEDGE_BASE.md](app-macos/docs/MENU_BAR_INTERACTION_KNOWLEDGE_BASE.md)：改、评审或排查菜单栏左右键、浮层锚定、网速、隐藏图标、恢复窗口、开机自启或退出前**必读**。不读会让左键误弹菜单、面板掉到角落或隐藏后无稳定入口。
-- [app-macos/docs/DISTRIBUTION_AND_UPDATE_KNOWLEDGE_BASE.md](app-macos/docs/DISTRIBUTION_AND_UPDATE_KNOWLEDGE_BASE.md)：改、评审或排查构建、签名、公证、应用内更新、GitHub Release 或 Homebrew 前**必读**。不读会把工程源、版本、签名链或公开发行边界改坏。
-- [app-macos/docs/OPERATIONS_GUIDE.md](app-macos/docs/OPERATIONS_GUIDE.md)：构建、测试、启动、覆盖安装、浮层截图验收或排查本机开发环境前**必读**。不读会在错误仓根构建、误把测试通过当安装验收、覆盖错误版本，或因状态栏浮层截不到图而误判界面没出来。
+- [app-macos/docs/PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md](~/Codes/CPUKiller/app-macos/docs/PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md)：改、评审或排查实时占用、人话名、排序、刷新、结束权限或终止流程前**必读**。不读会把整机口径、平表聚合或安全结束边界改错。
+- [app-macos/docs/MENU_BAR_INTERACTION_KNOWLEDGE_BASE.md](~/Codes/CPUKiller/app-macos/docs/MENU_BAR_INTERACTION_KNOWLEDGE_BASE.md)：改、评审或排查菜单栏左右键、浮层锚定、网速、隐藏图标、恢复窗口、开机自启或退出前**必读**。不读会让左键误弹菜单、面板掉到角落或隐藏后无稳定入口。
+- [app-macos/docs/DISTRIBUTION_AND_UPDATE_KNOWLEDGE_BASE.md](~/Codes/CPUKiller/app-macos/docs/DISTRIBUTION_AND_UPDATE_KNOWLEDGE_BASE.md)：改、评审或排查构建、签名、公证、应用内更新、GitHub Release 或 Homebrew 前**必读**。不读会把工程源、版本、签名链或公开发行边界改坏。
+- [app-macos/docs/OPERATIONS_GUIDE.md](~/Codes/CPUKiller/app-macos/docs/OPERATIONS_GUIDE.md)：构建、测试、启动、覆盖安装、浮层截图验收或排查本机开发环境前**必读**。不读会在错误仓根构建、误把测试通过当安装验收、覆盖错误版本，或因状态栏浮层截不到图而误判界面没出来。
 
 ## 领域地图（doc-init）
 
@@ -72,66 +72,41 @@ Remote：`app-macos` → GitHub 公开 [`x0c/CPUKiller`](https://github.com/x0c/
 
 <!-- managed:inherited-agents:end -->
 
-# AGENTS.md
-
-## 2026-09-04 状态栏分区点击：1.0.9 已在本机覆盖安装
-
-v1.0.9 / 内部构建号 20 已覆盖安装进本机「应用程序」并启动，Developer ID 签名校验通过。若圆环被错送入网络表，禁止继续叠透明子视图或调坐标阈值；必须拆成两个独立的 `NSStatusItem`，让圆环项与网速项各自只有一个系统左键动作。圆环项只进 CPU / 内存，读数项只进网络表；网络表每次打开默认 Download 降序。系统菜单栏按后来加入的项目向左排，所以固定“圆环在左，网速在右”必须先加入网速项、后加入圆环项；不提供布局切换。发布前必须在真实菜单栏验证两个入口。
-
-## 2026-09-04 圆环入口与默认排序：1.0.4 已在本机覆盖安装
-
-v1.0.4 / 内部构建号 15 已覆盖安装进本机「应用程序」并启动。点击实际绘制的双环区域必须只进 CPU / 内存表，不能被状态项的额外点击留白误判成网络表；只有点击上、下行读数才进网络表。网络表不管从哪一行读数打开，都默认按 Download 从高到低排；用户点上行或下行表头时再按该列从高到低排。
-
-## 2026-09-04 网络占用列表：1.0.3 已在本机覆盖安装
-
-v1.0.3 / 内部构建号 14 已覆盖安装进本机「应用程序」并启动，Developer ID 签名校验通过。双环是 CPU / 内存列表入口；上行和下行读数分别打开对应方向排序的网络占用列表。两张列表只有一张浮层，沿用图标、人话名、结束和悬停钉行的边界；网络表只展示上行、下行。网络表按一秒节奏刷新，必须和菜单栏网速读数没有可感知的刷新断层；收起时保留最近有效名单，首次无缓存时必须显示“正在读取网络占用”，禁止白屏或空白面板。
-
-## 2026-09-04 菜单栏网速：1.0.2 已在本机覆盖安装
-
-v1.0.2 / 内部构建号 13 已覆盖安装进本机「应用程序」并启动。双环和右侧网速块共用菜单栏中间的 17pt 画布，上下各留 2.5pt；圆环与网速块维持约 6% 的整体放大。上面永远是上行和 `↑`，下面永远是下行和 `↓`；这一映射不随字号、数值、单位或布局改变。发生上下颠倒时只能修正纵向坐标锚点：上行贴高边、下行贴低边；禁止交换读数或箭头。网速块内，较快方向的数字和单位使用 9.5pt 大号字，较慢方向使用 7.5pt 小号字；箭头始终使用 8.5pt 基准尺寸与位置，上下相等或任一行无读数时两行恢复 8.5pt。每次绘制都按本帧数字、单位和箭头的实际字形边界分别锚定上下两行：上行字形贴齐画布上缘，下行字形贴齐画布下缘，让网速块与双环同高同中线；禁止改回固定像素偏移、只对齐行框或只做整块居中。两行之间不额外留隙，不能再靠压缩行距放大。单位统一右对齐，数字紧贴各自单位左侧；禁止把两行数字强行右对齐。数字右侧、箭头左侧的单位在两行完整重复，箭头位于最右列并对齐；字号变化只能向左侧伸缩，数字随本行单位贴合。两行单位取当次上下行中量级更大者，必须完全一致；较小读数不足一个共同单位时显示 `<1`，不夸大成 `1`。默认出口切换时先清空并重取基线，不能把多个接口相加；右键「显示网速」默认开、会记住选择，关掉只收起两行读数。30 项自动检查、正式构建和 Developer ID 签名校验已通过。用户尚未批准发布：本轮没有提交、推送或对外发版。菜单栏应用没有普通窗口可供自动化截图，真实状态栏呈现须以系统菜单栏目视为准。
-
-数字贴在本行单位左侧时必须保留固定 2pt 的细小阅读间隔；这是排版规则，不可拿来补偿对齐，禁止数字与单位粘连。
-
-## 2026-09-01 菜单栏专项：1.0.1 已在本机覆盖安装
-
-v1.0.1 / 内部构建号 12 已装进本机「应用程序」。菜单栏双环在；左键打开的是进程表不是菜单；设置窗是带标题栏的恢复面（状态说明、开机自启、显示图标），进程表不是恢复面。本机开机自启开关当时是开——系统已真正启用，不是待批准假开（待批准会出现橙色说明和「打开登录项」）。锁屏未测。合成右键点图标会被当成左键（拿不到当前事件就开进程表），右键六条菜单以安装包英文案 + 源码接线为准，未做条目级点选。
-
-通用工程规范：本机 Swift 规范（`~/Codes/_standards/swift.md`）。
+# CPU Killer（macOS）
 
 本仓库是 CPU Killer 的 macOS 客户端。产品级约定见上级 [../AGENTS.md](../AGENTS.md)。用户可见行为以 [docs/PRODUCT_CONTRACT.md](docs/PRODUCT_CONTRACT.md) 为准。
 
+## 本机状态（摘要）
+
+当前覆盖安装以 `project.yml` / `Base.xcconfig` 版本为准。圆环与网速已拆成两个独立 `NSStatusItem`（先加网速项、后加圆环项 → 圆环在左、网速在右）；圆环项只进 CPU/内存表，读数项只进网络表；网络表默认 Download 降序。登录项拉起必须静默。细节权威在产品契约与菜单栏知识库，勿在本段堆发版流水。
+
 ## 工程源
 
-- [`project.yml`](project.yml) 是 Xcode 工程的唯一来源。不要手改 `CPUKiller.xcodeproj`。
-- 增删源文件或改构建设置后必须先 `xcodegen generate` 再构建。
-- `Assets.xcassets` 与 `Localizable.xcstrings` 必须留在 sources 里随编译打进包，不要再 exclude 后当 resources 拷——xcodegen 那样拷会丢，窗口标题会显示键名。字符串目录必须带 `"version": "1.0"`。
-- Bundle ID：`top.caozc.CPUKiller`。展示名：CPU Killer。版本双轨在 `Configuration/Base.xcconfig` 与 `project.yml`，发版脚本会比对并拦截不一致。
-- 公开 GitHub：`x0c/CPUKiller`。许可证 MIT。Homebrew cask：`x0c/tap` 的 `cpu-killer`。
+- [`project.yml`](project.yml) 是 Xcode 工程唯一来源；改后 `xcodegen generate`。
+- `Assets.xcassets` 与 `Localizable.xcstrings` 须进 sources 随编译打进包；字符串目录须 `"version": "1.0"`。
+- Bundle ID：`top.caozc.CPUKiller`。展示名：CPU Killer。版本双轨在 `Configuration/Base.xcconfig` 与 `project.yml`。
+- 公开 GitHub：`x0c/CPUKiller`（MIT）。Homebrew：`x0c/tap` 的 `cpu-killer`。
 
 ## 钉死的实现约束
 
-- **这是菜单栏应用。** 必须 `LSUIElement`。禁止加桌面进程表工作区、禁止程序坞常驻图标。图标即主入口，**禁止**隐藏菜单栏图标。设置窗用独立小窗，打开时临时切到普通激活，关掉改回附件。
-- **关掉设置窗不退出。** `applicationShouldTerminateAfterLastWindowClosed` 返回 false。退出只走用户点的「退出」→ `requestTermination`。Sparkle 正在安装更新时必须放行终止，否则更新装不上。
-- **关沙盒。** entitlements 空 dict。开沙盒进程表会空。不要申请辅助功能或完整磁盘访问。
-- **禁止把菜单挂到状态项上。** 左键打开表；右键才弹开机自启 / 显示网速 / 打开主窗口 / 设置 / 检查更新 / 退出（无隐藏图标）。左键赋了 `statusItem.menu` 会变成弹菜单，结束路径就没了。
-- **菜单栏浮层是唤出工具（形态 1）。** 点面板外立刻关；点面板内、本菜单栏图标不关。不能靠失焦关窗。列表是内容层，不要玻璃；外框可以通透玻璃。根视图必须忽略标题栏安全区，禁止再出现巨大空白表头。**表必须锚在菜单栏图标正下方。** 图标坐标宽高为 0、或不在屏幕顶上菜单栏带里，一律当没拿到，禁止用这种假位置把表放到左下角。拿不到就等一拍再打开。
-- **刷新开关默认开。** 开关只冻结进程列表；菜单栏双环和表头汇总继续刷新。收起面板不更新进程列表，但双环指标保持独立刷新。不要在 `ProcessTableView` 一创建就开刷。
-- **结束符号悬停钉行。** 鼠标停在结束符号上时，这一行钉在原位，占用数字可原位更新；不要因此把整张表冻住（整表冻结走刷新开关）。悬停期间这一行没了立刻解除钉死。钉死只针对结束符号，停在名字或占用数字上名单照常跳。
-- **表头汇总与点列排序。** CPU / 内存列名写成 `CPU 88.8%` / `Mem 68.8%`（中文内存列为 `内存`），数字与双环同一口径：CPU 用各行人话行加总上限 100%，内存读系统级物理占用，禁止把内存行相加。点 CPU 或内存列按该列从高到低排，没有升序；默认 CPU 从高到低；名字/结束列不可点来排序。
-- **列表永远是平的。** 禁止进程树、禁止展开孩子。同一桌面应用底下的助手折进该应用那一行并加总。Cursor.app 对从它拉起的外部命令按终端处理，独立工具不折进 Cursor 那一行。
-- **人话名优先读启动参数，不要用解释器短名。** 责任进程用 `dlsym("responsibility_get_pid_responsible_for_pid")`，失败再退回包路径。不要 Endpoint Security。参数按 pid+启动时刻缓存，进程出现时读一次，禁止每秒重读。
-- **CPU 是整机占比，上限 100%。** 两次采样 Δ(user+system) / (墙钟秒 × 逻辑核数) × 100。Apple Silicon 上 `pti_total_user/system` 是 mach ticks，必须乘 timebase（原生约 125/3，htop FB9546856）；禁止只换墙钟、不换进程时间。
-- **内存是物理占用账本 / 物理内存 ×100**，不要 resident。列表行与菜单栏内环分别取进程级和系统级统计，禁止把列表行相加。
-- **CPU 外环只接受有效的前后两次样本。** 进程刚出现、刚退出或系统瞬时读不到 CPU 时保留上一帧，不能闪成空环；真实 0% 仍显示为空环。
-- **结束：** `.app` 用 `NSRunningApplication.terminate` 再 `forceTerminate`；解释器用 SIGTERM 再 SIGKILL。只结束当前用户进程；别人的只展示。系统进程禁止一键杀。结束 ChatGPT 这一行等于结束它拉的电脑操控；结束 Corral 不杀 tmux 保活里的助手；结束某个 Cursor Agent 只杀那一只。WindowServer 这类系统进程的 argv0 常等于短名，禁止当成「具名工具」放开结束。
-- **无系统蓝框**，可键盘处补自有焦点态。
-- **开机自启默认关**，用登录项三态；待批准不能显示成已开启，并引导去系统设置登录项。
-- **禁止隐藏菜单栏图标**；启动强制可见，清掉历史 `menuBar.iconVisible`。登录项拉起必须静默（`LoginLaunchDetector` + `MenuBarReopenPolicy` 的 `isLoginLaunch`）。系统顺手退出必须拦住；Sparkle 正在安装更新时放行。
-- **公开仓脱敏。** 禁止把内网地址、本机绝对用户路径写进将推到 GitHub 的文件。GitHub 用当前树的干净快照，不要把私有开发史原样推上去。
+- **菜单栏应用**：`LSUIElement`；禁止桌面进程表工作区、程序坞常驻、隐藏菜单栏图标。设置窗独立；打开临时普通激活，关掉改回附件。
+- **关窗不退出**：`applicationShouldTerminateAfterLastWindowClosed` = false。退出只走「退出」→ `requestTermination`。Sparkle 安装更新时必须放行终止。
+- **关沙盒**（entitlements 空 dict）。禁止辅助功能 / 完整磁盘访问。
+- **禁止把菜单挂到状态项**：左键开表；右键开机自启 / 显示网速 / 打开主窗口 / 设置 / 检查更新 / 退出。
+- **浮层形态 1**：点外关；列表实底；表锚在图标正下方。图标坐标假（宽高 0 / 不在菜单栏带）→ 禁止用假位置，等一拍再开。
+- **刷新开关**只冻进程列表；双环与表头汇总继续刷。收起面板不刷列表，双环独立刷。不要在 `ProcessTableView` 创建即开刷。
+- **结束符号悬停钉行**；钉死只针对结束符号。
+- **表头**：`CPU 88.8%` / `Mem 68.8%`；点列仅从高到低；CPU 行加总上限 100%；内存读系统级物理占用，禁止行相加。
+- **平表**：禁止进程树。同一桌面应用下助手折进该行；Cursor.app 对外部命令按终端处理。
+- **人话名**：优先启动参数；`dlsym("responsibility_get_pid_responsible_for_pid")`，失败退包路径。参数按 pid+启动时刻缓存。
+- **CPU**：Δ(user+system)/(墙钟秒×逻辑核)×100，上限 100%。Apple Silicon 须乘 timebase。
+- **内存**：物理占用账本/物理内存×100，不要 resident。
+- **CPU 外环**：无效样本保留上一帧；真实 0% 仍空环。
+- **结束**：`.app` → `terminate`/`forceTerminate`；解释器 SIGTERM/SIGKILL。只结束当前用户；系统进程禁止一键杀。WindowServer 等 argv0=短名禁止当具名工具放开。
+- **无系统蓝框**；开机自启默认关（三态）；登录静默（`LoginLaunchDetector` + `MenuBarReopenPolicy`）。
+- **公开仓脱敏**：禁止内网地址、本机绝对用户路径进 GitHub。
 
 ## 构建与覆盖安装
-
-固定 derivedData，先删旧包再整包复制：
 
 ```bash
 xcodegen generate
@@ -143,38 +118,22 @@ xattr -dr com.apple.quarantine "/Applications/CPU Killer.app" 2>/dev/null || tru
 open "/Applications/CPU Killer.app"
 ```
 
-覆盖安装若需要管理员密码：先做免密探测；失败立刻停，禁止弹出图形授权窗口。
-
-对外发版（签名公证 dmg + Sparkle 更新包 + GitHub Release + appcast + Homebrew，一条命令、可重复执行；`--local-only` 只产本地公证包不碰远端）：
-
-```bash
-scripts/publish-release.sh
-```
-
-脚本会跳过 git 钩子，发版前必须按公开仓档做泄漏扫描（`leakgate.py scan --profile public`）。origin 是私有镜像时默认不会按公开仓拦截内网地址。
-
-推公开仓快照若远程断开：本地已公证的安装包和更新清单仍可用，从快照推送 / 发行页 / 一键安装配方续跑，**禁止因此重新公证**。配方写入须防版本回退。
-
-Debug 测试目标默认不绑主线程；应用里给测试读的常量袋必须标成不绑线程，否则测试编不过。
-
-首次安装渠道：GitHub Release 的公证 dmg 与 Homebrew（`brew tap x0c/tap && brew install --cask cpu-killer`）；自动更新源为仓库根 `appcast.xml`。GitHub 发行页必须先建空再传安装包——一条命令带附件会在上传接口返回 404。
-
-开源门面对标：Stats（首屏真实界面图、Homebrew、dmg 直链）；本机 NeatPaste（双语 README、Sparkle、共用 `x0c/tap`、一条命令发版）。不抄 Stats 的长 FAQ，不在安装说明里教用户绕过系统保护。
+要管理员密码：免密失败立刻停。对外发版：`scripts/publish-release.sh`（发版前 `leakgate.py scan --profile public`）。首次安装：GitHub Release 公证 dmg 或 `brew tap x0c/tap && brew install --cask cpu-killer`；更新源 `appcast.xml`。
 
 ## 基线豁免
 
-见上级产品 `AGENTS.md`。A1 已具备，不再暂缓。A3、A4、A7、A8、B1、关沙盒不是豁免。桌面进程表工作区不适用 A5；设置窗仍须按 A5 保存位置与尺寸。图标禁止隐藏；登录自启静默。
+见上级产品 `AGENTS.md`。A1 已具备。A3/A4/A7/A8/B1/关沙盒不是豁免。桌面进程表不适用 A5；设置窗仍须按 A5 记位置。
 
 ## 文档导航
 
-- [docs/design/APP_ICON_EXPLORATION.md](docs/design/APP_ICON_EXPLORATION.md)：重新设计、选择、精绘、接入应用图标，或排查进程表 / Finder 仍显示旧图标（粉底黑叉）前**必读**。不读会把九宫格探索稿当终稿，覆盖当前母版与菜单栏模板，或把系统还在吐旧图误判成母版没换。
-- [docs/PRODUCT_CONTRACT.md](docs/PRODUCT_CONTRACT.md)：改、评审或排查菜单栏图标/模板图、两行网速、网速左侧空白/刷新抖动、自动识别当前网卡、隐藏图标、恢复窗口、开机自启三态或任何其他用户可见行为（人话名折行、名字列过宽、长包名省略、Chrome 显示成 `Goog...rome`、长名字减小字体、前缀省略、中间省略、整机占比、刚开机内存六十多、表头汇总、点列名排序、表出现在图标下方、掉到屏幕角落、结束边界、刷新开关、表头顶空白、结束符号悬停钉行、检查更新入口、进程表仍显示旧图标/粉底黑叉、网络表字号色阶、网络表名单秒级闪烁/Chrome 进进出出）前**必读**。不读会把网速算到错误网卡上、把 ChatGPT 拆成一堆 node、把开机六十当泄漏去改口径、把 Cursor Agent 折进 Cursor.app、把隐藏图标后的恢复面做成进程表、把系统还在吐旧图当成图标没装进去去重做、把防抖又预留四位数字导致左侧大空白，或把短暂无流量的网络行秒级踢出名单。
-- 本机 overlay / 玻璃 / 图标 / 本地化 / 设置项配方在 `~/Codes/_standards/workspace-docs/swift-docs/`，改对应能力前必读。不读会把三种浮层混用、把列表做成玻璃、再补扁平切图、或把键名显示给用户。
-- 本机进程身份识别知识库：`~/.config/agentsync/docs/MAC_PROCESS_IDENTITY_KNOWLEDGE_BASE.md`。改身份识别或 CPU 口径前**必读**。
-- [docs/PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md](docs/PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md)：改、评审或排查实时占用、人话名、排序、刷新、结束权限或终止流程前**必读**。不读会把整机口径、平表聚合或安全结束边界改错。
-- [docs/MENU_BAR_INTERACTION_KNOWLEDGE_BASE.md](docs/MENU_BAR_INTERACTION_KNOWLEDGE_BASE.md)：改、评审或排查菜单栏左右键、浮层锚定、网速、隐藏图标、恢复窗口、开机自启或退出前**必读**。不读会让左键误弹菜单、面板掉到角落或隐藏后无稳定入口。
-- [docs/DISTRIBUTION_AND_UPDATE_KNOWLEDGE_BASE.md](docs/DISTRIBUTION_AND_UPDATE_KNOWLEDGE_BASE.md)：改、评审或排查构建、签名、公证、应用内更新、GitHub Release 或 Homebrew 前**必读**。不读会把工程源、版本、签名链或公开发行边界改坏。
-- [docs/OPERATIONS_GUIDE.md](docs/OPERATIONS_GUIDE.md)：构建、测试、启动、覆盖安装、浮层截图验收或排查本机开发环境前**必读**。不读会在错误仓根构建、误把测试通过当安装验收、覆盖错误版本，或因状态栏浮层截不到图而误判界面没出来。
+- [docs/design/APP_ICON_EXPLORATION.md](docs/design/APP_ICON_EXPLORATION.md)：重绘/接入应用图标或排查粉底黑叉前必读。不读会把探索稿当终稿或误判缓存。
+- [docs/PRODUCT_CONTRACT.md](docs/PRODUCT_CONTRACT.md)：改任何用户可见行为前必读。不读会改掉已锁体验。
+- 本机 overlay / 玻璃 / 图标 / 本地化 / 设置项：`~/Codes/_standards/workspace-docs/swift-docs/`。
+- 进程身份：`~/.config/agentsync/docs/MAC_PROCESS_IDENTITY_KNOWLEDGE_BASE.md`。
+- [docs/PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md](docs/PROCESS_MONITORING_AND_TERMINATION_KNOWLEDGE_BASE.md)：改占用/人话名/结束前必读。
+- [docs/MENU_BAR_INTERACTION_KNOWLEDGE_BASE.md](docs/MENU_BAR_INTERACTION_KNOWLEDGE_BASE.md)：改菜单栏/浮层/网速前必读。
+- [docs/DISTRIBUTION_AND_UPDATE_KNOWLEDGE_BASE.md](docs/DISTRIBUTION_AND_UPDATE_KNOWLEDGE_BASE.md)：改构建/签名/公证/更新前必读。
+- [docs/OPERATIONS_GUIDE.md](docs/OPERATIONS_GUIDE.md)：本地构建/覆盖安装/浮层截图排障前必读。
 
 ## 领域地图（doc-init）
 

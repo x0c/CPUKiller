@@ -11,9 +11,11 @@
 		0312185FC2939E491E5FA61B /* NetworkTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB4FEC9FD49FC80092D552F /* NetworkTableView.swift */; };
 		102E3AAE692AA9A5D4FAD7AA /* ProcessTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F23270B1264FEA9ADB1AA40 /* ProcessTableView.swift */; };
 		16F1ADB0BF1204413C63D8D3 /* DisplayClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD7A45ACDDB5FF6339F3304 /* DisplayClassifier.swift */; };
+		19797E6A89A642D9608CA117 /* TableRowPinning.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D697868B8C4C4FB7E751EA /* TableRowPinning.swift */; };
 		20E6D875224F2DD2C7C2ACE6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBCAAB79E9BD315D477C172 /* AppDelegate.swift */; };
 		22047A33507D3B3DD9EC6B6D /* ProcessSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850565F5EFA8715213F743F0 /* ProcessSampler.swift */; };
 		24FE51849EBE363903CF7B02 /* ProcessListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 365D4F04F79DD343A1B2E5AE /* ProcessListModel.swift */; };
+		2A3FD6AF874DE9155BC98435 /* MonitorTableRowChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3F79950444A720A91EAEF8B /* MonitorTableRowChrome.swift */; };
 		341339B9E733B19CAF306681 /* PanelDismiss.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1358AF99BDD6F2BB7CBDEEAA /* PanelDismiss.swift */; };
 		347B4F1B662100E6FDEF7632 /* NetworkProcessRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAB5B582A7DF94BFC70FCB69 /* NetworkProcessRow.swift */; };
 		4655E5D5DA3CC858F6DB0433 /* NetworkRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DB638CD2CC95FC52214DC31 /* NetworkRowView.swift */; };
@@ -144,6 +146,7 @@
 		ABE78085F80B47A3480E23D4 /* structure-01-48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "structure-01-48.png"; sourceTree = "<group>"; };
 		AC00C16C7807A2C5299EC3F6 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		AE8A8983048070083B1CF37B /* direction-04-variants-3x3-2026-08-30.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "direction-04-variants-3x3-2026-08-30.png"; sourceTree = "<group>"; };
+		B4D697868B8C4C4FB7E751EA /* TableRowPinning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableRowPinning.swift; sourceTree = "<group>"; };
 		B93CF26C8A5AF2312AC91E8D /* LICENSE */ = {isa = PBXFileReference; path = LICENSE; sourceTree = "<group>"; };
 		B9BB8ACCA9931CE2D51A3819 /* Responsibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Responsibility.swift; sourceTree = "<group>"; };
 		B9E1366C77E16E46FEE04FB5 /* direction-05-pressed-chip-white-1024-24px.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "direction-05-pressed-chip-white-1024-24px.png"; sourceTree = "<group>"; };
@@ -160,6 +163,7 @@
 		CB62C8CC4EB1C1259A42E739 /* structure-01-solid.svg */ = {isa = PBXFileReference; path = "structure-01-solid.svg"; sourceTree = "<group>"; };
 		CF91A454F2B86BD134FF22D0 /* directions-3x3-2026-08-30-v2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "directions-3x3-2026-08-30-v2.png"; sourceTree = "<group>"; };
 		D10818650EE172CE1687BB1A /* cell-5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cell-5.png"; sourceTree = "<group>"; };
+		D3F79950444A720A91EAEF8B /* MonitorTableRowChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitorTableRowChrome.swift; sourceTree = "<group>"; };
 		D4EA22790A2FFE97905AEA33 /* APP_ICON_EXPLORATION.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = APP_ICON_EXPLORATION.md; sourceTree = "<group>"; };
 		D5AB151AE373775BA696DA5F /* structure-01-solid.svg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "structure-01-solid.svg.png"; sourceTree = "<group>"; };
 		DA54B6512E7D890487574C7E /* memory-01-slash.svg */ = {isa = PBXFileReference; path = "memory-01-slash.svg"; sourceTree = "<group>"; };
@@ -259,6 +263,7 @@
 		4E54E3E56400D5350C2C9B33 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				D3F79950444A720A91EAEF8B /* MonitorTableRowChrome.swift */,
 				9DB638CD2CC95FC52214DC31 /* NetworkRowView.swift */,
 				BDB4FEC9FD49FC80092D552F /* NetworkTableView.swift */,
 				5AF491088A9A1A52A4595AB1 /* ProcessRowView.swift */,
@@ -322,6 +327,7 @@
 				850565F5EFA8715213F743F0 /* ProcessSampler.swift */,
 				73C1806B74E76AA3DF5F6C05 /* ProcessTerminator.swift */,
 				B9BB8ACCA9931CE2D51A3819 /* Responsibility.swift */,
+				B4D697868B8C4C4FB7E751EA /* TableRowPinning.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -636,6 +642,7 @@
 				16F1ADB0BF1204413C63D8D3 /* DisplayClassifier.swift in Sources */,
 				98708132793E114E4A5213A8 /* LaunchAtLoginManager.swift in Sources */,
 				E9794DF90853929985A2F96A /* MenuBarIconRenderer.swift in Sources */,
+				2A3FD6AF874DE9155BC98435 /* MonitorTableRowChrome.swift in Sources */,
 				93BBF0B25AAE2D70A1111EE3 /* NetworkListModel.swift in Sources */,
 				347B4F1B662100E6FDEF7632 /* NetworkProcessRow.swift in Sources */,
 				4655E5D5DA3CC858F6DB0433 /* NetworkRowView.swift in Sources */,
@@ -654,6 +661,7 @@
 				B48918FA2D1245051BC348C5 /* SettingsView.swift in Sources */,
 				AD72F35F38F6CD3446CEE5AA /* SettingsWindowController.swift in Sources */,
 				A57E8EB7E88503A216099D5B /* StatusItemController.swift in Sources */,
+				19797E6A89A642D9608CA117 /* TableRowPinning.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -735,7 +743,7 @@
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 27;
+				CURRENT_PROJECT_VERSION = 28;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = SHZQ3MWP3B;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -751,7 +759,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.16;
+				MARKETING_VERSION = 1.0.17;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
@@ -880,7 +888,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 27;
+				CURRENT_PROJECT_VERSION = 28;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = SHZQ3MWP3B;
 				ENABLE_HARDENED_RUNTIME = NO;
@@ -902,7 +910,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.16;
+				MARKETING_VERSION = 1.0.17;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;

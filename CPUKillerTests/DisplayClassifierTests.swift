@@ -131,6 +131,46 @@ final class DisplayClassifierTests: XCTestCase {
         XCTAssertEqual(rows[0].kind, .other)
         XCTAssertTrue(rows[0].isSystemProtected, "kind=\(rows[0].kind) name=\(rows[0].displayName)")
         XCTAssertFalse(rows[0].isCurrentUser)
+        XCTAssertNil(
+            DisplayClassifier.toolHint(
+                path: windowServer.path,
+                arguments: windowServer.arguments,
+                executableName: "WindowServer"
+            )
+        )
+    }
+
+    func testProtectedSystemHelperIsNotFoldedIntoDesktopApp() {
+        let safari = makeProcess(
+            pid: 200,
+            path: "/Applications/Safari.app/Contents/MacOS/Safari",
+            arguments: ["Safari"]
+        )
+        let helper = makeProcess(
+            pid: 201,
+            ppid: 200,
+            uid: 0,
+            path: "/System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer",
+            arguments: ["WindowServer"],
+            responsible: 200
+        )
+        let rows = DisplayClassifier.rows(from: [safari, helper], currentUID: 501, physicalMemory: 16 << 30)
+        let appRow = rows.first { $0.id.hasPrefix("app:") }
+        let protectedRow = rows.first { $0.memberPIDs == [201] }
+        XCTAssertEqual(appRow?.memberPIDs, [200])
+        XCTAssertNotNil(protectedRow)
+        XCTAssertTrue(protectedRow?.isSystemProtected == true)
+        XCTAssertFalse(appRow?.memberPIDs.contains(201) == true)
+    }
+
+    func testUsrSbinIsProtected() {
+        XCTAssertTrue(
+            DisplayClassifier.isProtected(
+                name: "blued",
+                path: "/usr/sbin/blued",
+                pid: 99
+            )
+        )
     }
 
     func testCPUPercentIsCappedAtOneHundred() {

@@ -131,6 +131,8 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         button.imageScaling = .scaleProportionallyDown
         button.imagePosition = .imageOnly
         button.focusRingType = .none
+        // 保持 nil，让系统按菜单栏明暗给模板图上色；禁止手写黑/白。
+        button.contentTintColor = nil
         button.setAccessibilityLabel(String(localized: "status.item.accessibility"))
         button.target = self
         button.action = target == .process ? #selector(openProcessPanel(_:)) : #selector(openNetworkPanel(_:))
@@ -253,19 +255,29 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     }
 
     private func renderStatusItem() {
-        let ringImage = MenuBarIconRenderer.image(
-            cpuPercent: cpuPercent,
-            memoryPercent: memoryPercent
+        applyTemplateImage(
+            MenuBarIconRenderer.image(
+                cpuPercent: cpuPercent,
+                memoryPercent: memoryPercent
+            ),
+            to: ringStatusItem
         )
-        ringImage.isTemplate = true
-        ringStatusItem.button?.image = ringImage
-
-        let networkImage = MenuBarIconRenderer.networkImage(
-            uploadBytesPerSecond: uploadBytesPerSecond,
-            downloadBytesPerSecond: downloadBytesPerSecond
+        applyTemplateImage(
+            MenuBarIconRenderer.networkImage(
+                uploadBytesPerSecond: uploadBytesPerSecond,
+                downloadBytesPerSecond: downloadBytesPerSecond
+            ),
+            to: networkStatusItem
         )
-        networkImage.isTemplate = true
-        networkStatusItem.button?.image = networkImage
         networkStatusItem.isVisible = displayPreferences.showsNetworkSpeed
+    }
+
+    private func applyTemplateImage(_ image: NSImage, to statusItem: NSStatusItem) {
+        image.isTemplate = true
+        guard let button = statusItem.button else { return }
+        button.contentTintColor = nil
+        button.image = image
+        // 赋值后再钉一次，避免按钮拷贝丢模板标记。
+        button.image?.isTemplate = true
     }
 }

@@ -20,12 +20,7 @@ nonisolated enum NetworkTableRanking {
             return lhs.displayName.localizedCaseInsensitiveCompare(rhs.displayName) == .orderedAscending
         }
         let visible = Array(ranked.prefix(12))
-        guard let pinnedID, let pinnedIndex,
-              let pinned = rows.first(where: { $0.id == pinnedID })
-        else { return visible }
-        var result = visible.filter { $0.id != pinnedID }
-        result.insert(pinned, at: min(max(pinnedIndex, 0), result.count))
-        return result
+        return TableRowPinning.pin(visible, onto: rows, pinnedID: pinnedID, pinnedIndex: pinnedIndex)
     }
 }
 
@@ -138,22 +133,18 @@ final class NetworkListModel {
     }
 
     func setEndHover(_ hovering: Bool, rowID: String) {
-        if hovering {
-            unpinTask?.cancel()
-            unpinTask = nil
-            if pinnedRowID != rowID {
-                pinnedIndex = visibleRows.firstIndex { $0.id == rowID }
-                pinnedRowID = rowID
-            }
-            return
-        }
-        guard pinnedRowID == rowID else { return }
-        unpinTask?.cancel()
-        unpinTask = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(80))
-            guard !Task.isCancelled, self?.pinnedRowID == rowID else { return }
-            self?.clearPin()
-        }
+        PinnedEndHover.apply(
+            hovering: hovering,
+            rowID: rowID,
+            pinnedRowID: &pinnedRowID,
+            pinnedIndex: &pinnedIndex,
+            unpinTask: &unpinTask,
+            visibleIndexForRow: { [weak self] in
+                self?.visibleRows.firstIndex { $0.id == rowID }
+            },
+            clearPin: { [weak self] in self?.clearPin() },
+            currentPinnedID: { [weak self] in self?.pinnedRowID }
+        )
     }
 
     func end(_ row: NetworkProcessRow) async {

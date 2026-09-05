@@ -122,7 +122,7 @@ final class NetworkTableRankingTests: XCTestCase {
             displayName: name,
             bundlePath: nil,
             iconPath: nil,
-            memberPIDs: [pid],
+            memberIdentities: [ProcessIdentity(pid: pid, startTime: 1)],
             cpuPercent: 0,
             memoryPercent: 0,
             kind: .other,
@@ -146,6 +146,16 @@ final class StatusItemPanelTargetTests: XCTestCase {
         XCTAssertEqual(ringImage.size.width, MenuBarIconRenderer.pointSize)
         XCTAssertGreaterThan(networkImage.size.width, 0)
         XCTAssertEqual(ringImage.size.height, networkImage.size.height)
+        XCTAssertTrue(ringImage.isTemplate, "圆环必须是模板图，由系统按菜单栏明暗着色")
+        XCTAssertTrue(networkImage.isTemplate, "网速块必须是模板图，由系统按菜单栏明暗着色")
+        XCTAssertTrue(
+            ringImage.representations.contains(where: { $0 is NSBitmapImageRep }),
+            "动态绘制必须先栅格成位图，不能只留 NSCustomImageRep 直接往菜单栏画黑笔"
+        )
+        XCTAssertTrue(
+            networkImage.representations.contains(where: { $0 is NSBitmapImageRep }),
+            "动态绘制必须先栅格成位图，不能只留 NSCustomImageRep 直接往菜单栏画黑笔"
+        )
     }
 
     func testNetworkTableDefaultsToDownloadOrder() {

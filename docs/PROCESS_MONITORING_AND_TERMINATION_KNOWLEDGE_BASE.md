@@ -143,9 +143,9 @@ sequenceDiagram
 
 `ProcessTableView` 将每行的结束动作交给 `ProcessListModel.end()`，后者清除旧错误、调用 `ProcessTerminator.end()`，仅将失败结果写入 `lastError`，然后无条件刷新。
 
-结束器先阻止两类行：系统保护行，以及任何成员并非当前用户的行。被阻止是预期安全结果，不显示为执行失败。
+结束器先阻止两类行：系统保护行，以及任何成员并非当前用户的行。被阻止是预期安全结果，不显示为执行失败。同一批成员身份若已有结束进行中（含网络表与进程表交叉），再次结束返回阻止，避免并发发信号。
 
-允许结束的桌面应用和 ChatGPT 行先按运行中的应用执行正常终止；短暂等待后，对仍未结束的应用强制终止；最后再对该行成员走解释器终止流程。Cursor Agent、pi、Corral、具名工具和普通进程直接走解释器终止流程：先向仍存活的 PID 发 SIGTERM，等待，再向仍存活的 PID 发 SIGKILL。结束后再次检测成员 PID 是否存活；都已消失才是 `ended`，否则将本地化失败文案交给表内提示。
+允许结束的桌面应用和 ChatGPT 行先按运行中的应用执行正常终止；短暂等待后，对仍未结束的应用强制终止；最后再对该行成员走解释器终止流程。Cursor Agent、pi、Corral、具名工具和普通进程直接走解释器终止流程：先向仍存活且启动时刻仍匹配的成员发 SIGTERM，等待，再向仍匹配的成员发 SIGKILL。每发信号前复读路径并跳过系统保护目标。结束后再次按 PID+启动时刻检测成员是否存活；都已消失才是 `ended`，否则将本地化失败文案交给表内提示。
 
 ### 2.7 表内呈现与可访问性
 
@@ -190,7 +190,7 @@ sequenceDiagram
 | `RawProcess.ppid` 与 `responsiblePID` | `CPUKiller/Models/ProcessRow.swift` | Unix 父关系与系统责任关系 | 两者都用于归类线索，但产品结果是平表，不应改成父子树。 |
 | `RawProcess.cpuPercent` | `CPUKiller/Models/ProcessRow.swift` | 单个 PID 的整机逻辑核 CPU 占比 | 由前后采样差计算，不是累计时间或单核百分比。 |
 | `RawProcess.memoryBytes` | `CPUKiller/Models/ProcessRow.swift` | 单个 PID 的物理占用字节数 | 使用 physical footprint；不要改成 resident 口径。 |
-| `ProcessRow.memberPIDs` | `CPUKiller/Models/ProcessRow.swift` | 一条用户可见行包含的成员 PID | 结束、存活检测和聚合均依赖它；不能只结束引导 PID。 |
+| `ProcessRow.memberIdentities` / `memberPIDs` | `CPUKiller/Models/ProcessRow.swift` | 一行包含的成员身份；`memberPIDs` 为派生只读视图 | 结束与存活检测必须用身份；禁止只按 PID 发 SIGKILL。 |
 | `ProcessRow.cpuPercent` 与 `memoryPercent` | `CPUKiller/Models/ProcessRow.swift` | 行级 CPU 与行级物理内存百分比 | 行内存不是系统内存；表头内存不能由它累加。 |
 | `ProcessRow.kind` | `CPUKiller/Models/ProcessRow.swift` | 行种类，决定显示与结束策略 | 改新种类时必须同步归类器、结束器和测试。 |
 | `ProcessRow.isCurrentUser` 与 `isSystemProtected` | `CPUKiller/Models/ProcessRow.swift` | 结束是否被允许的安全状态 | 视图禁用与结束器二次拦截都必须保留。 |
@@ -212,6 +212,9 @@ sequenceDiagram
 - **AI 易错点**【禁止】把 CPU 改成单核或累计 CPU 时间 -> 必须保持两次采样的 Δ(user+system) / (墙钟秒 × 逻辑核数) × 100，并限制在 0–100%（原因：产品展示的是整机逻辑核占比，且与菜单栏指标同口径）。
 - **AI 易错点**【禁止】将每一行 `memoryPercent` 相加写进表头 -> 必须继续读取系统级物理内存占比（原因：行模型是可见责任对象的 physical footprint 聚合，无法代表整机已占用内存）。
 - **AI 易错点**【禁止】用 PID 单独作为缓存或 CPU 历史身份 -> 必须使用 PID 加启动时间的 `ProcessIdentity`（原因：PID 会复用，旧参数和旧样本会错误附着到新进程）。
+- **AI 易错点**【禁止】结束流程只按 PID 发 SIGTERM/SIGKILL -> 必须在等待前后用启动时刻核对仍是同一进程，并跳过仍被判为系统保护的目标（原因：等待窗口内 PID 复用或误折进应用行的系统助手会被误杀）。
+- **AI 易错点**【禁止】把系统保护进程按责任 PID 折进桌面应用行 -> `rowKey` 必须让保护进程独立成行（原因：结束应用时的成员信号会连带打到系统助手）。
+- **AI 易错点**【禁止】把 argv0 等于可执行短名当成「具名工具」hint -> `toolHint` 必须跳过该情况（原因：WindowServer 等短名会误放开分类边界）。
 - **AI 易错点**【禁止】从 Unix 父子关系直接画进程树或把一切孩子都折叠 -> 必须通过责任 PID、包路径、参数和明确的家族规则形成平表（原因：产品不做进程树，且 Cursor 启动的独立工具不能被折进 Cursor）。
 - **AI 易错点**【禁止】只在按钮上禁用系统行或其他用户行 -> 必须同时保留 `ProcessTerminator.end()` 的二次拦截（原因：UI 只是入口，结束器仍是最后的权限边界）。
 - **AI 易错点**【禁止】把 ChatGPT、电脑操控与其 memory helper 拆成多行 -> 必须聚合为一行 ChatGPT（原因：用户需要看到责任对象，结束这一行的业务含义就是结束这一家）。
@@ -223,7 +226,7 @@ sequenceDiagram
 - 【隐性依赖】修改 Apple Silicon 或 Rosetta 的 CPU 采样时必须同时检查 ticks 到纳秒的换算与逻辑核归一化；只换墙钟时间会让数值失真。
 - 【隐性语义】`ProcessListModel.refresh()` 对 `isRefreshing` 的保护使同一时刻只允许一个刷新；新增异步入口时不要绕开它并直接覆写 `rows`。
 - 【隐性语义】`ArgumentCache` 仅在某一 `ProcessIdentity` 第一次出现时读取参数，并在快照完成后按存活身份清理；新增参数识别规则不能改成每秒读取全机参数。
-- 【禁止】将系统保护只按展示名称判断 -> 必须保留 PID、保护名称和系统路径三类保护线索（原因：WindowServer 等短名可能被误判为普通具名工具）。
+- 【禁止】将系统保护只按展示名称判断 -> 必须保留 PID、保护名称和系统路径三类保护线索，且路径须覆盖 `/System/`、`/usr/libexec/`、`/usr/sbin/`、`/sbin/`（原因：WindowServer 等短名可能被误判为普通具名工具；`/usr/sbin` 不在旧前缀里）。
 - 【禁止】把失败的结束结果吞掉 -> 必须让 `ProcessListModel.end()` 写入本地化失败信息并刷新（原因：用户需要知道仍有成员存活，而不是误以为已结束）。
 - 【消歧】行内存占比 vs 系统内存占比：前者属于 `ProcessRow`，是可见责任对象成员的 physical footprint；后者属于 `ProcessListModel`，是 host VM 的整机口径。两者不能互传或相加。
 - 【消歧】刷新冻结 vs 结束行钉位：前者冻结整份名单以便用户定位；后者只在结束符号悬停期间保持一行位置，数值依旧刷新。两者不可互相替代。
@@ -304,4 +307,4 @@ xcodegen generate && xcodebuild -project CPUKiller.xcodeproj -scheme CPUKiller -
 - 用户说“结束不了”“不该能结束”“点错行”时，先检查当前用户、系统保护、成员 PID、钉位和结束后的存活检测。
 - 用户说“刷新关了还在跳”“悬停结束时位置变了”时，先检查名单覆盖条件与钉位的失效和插入逻辑。
 
-<!-- 该文档由 doc-init 生成于 2026-09-04；定位：AI 修改实时占用与结束前的快速参考文档。 -->
+<!-- 该文档整理/压缩于 2026-09-05 -->

@@ -53,18 +53,9 @@ enum MenuBarIconRenderer {
         cpuPercent: Double,
         memoryPercent: Double
     ) -> NSImage {
-        let image = NSImage(
-            size: NSSize(width: pointSize, height: menuBarHeight),
-            flipped: false
-        ) { rect in
-            guard let context = NSGraphicsContext.current?.cgContext else {
-                return false
-            }
-
-            context.saveGState()
-            defer { context.restoreGState() }
-
-            context.setShouldAntialias(true)
+        // 必须先栅格成位图再标模板：NSCustomImageRep 的 drawingHandler
+        // 会在状态项上直接落黑笔，绕过系统按 alpha 着色，深色菜单栏里就一直发黑。
+        makeTemplateImage(size: NSSize(width: pointSize, height: menuBarHeight)) { context, rect in
             let center = CGPoint(x: pointSize / 2, y: rect.midY)
             drawRing(
                 in: context,
@@ -78,10 +69,7 @@ enum MenuBarIconRenderer {
                 radius: innerRadius,
                 progress: memoryPercent
             )
-            return true
         }
-        image.isTemplate = true
-        return image
     }
 
     static func networkImage(
@@ -92,23 +80,60 @@ enum MenuBarIconRenderer {
             uploadBytesPerSecond: uploadBytesPerSecond,
             downloadBytesPerSecond: downloadBytesPerSecond
         )
-        let image = NSImage(
-            size: NSSize(width: networkWidth, height: menuBarHeight),
-            flipped: false
-        ) { _ in
-            guard let context = NSGraphicsContext.current?.cgContext else {
-                return false
-            }
-            context.saveGState()
-            defer { context.restoreGState() }
-            context.setShouldAntialias(true)
+        return makeTemplateImage(size: NSSize(width: networkWidth, height: menuBarHeight)) { context, _ in
             drawNetworkSpeed(
                 layout: networkLayout,
                 originX: 0,
                 using: context
             )
-            return true
         }
+    }
+
+    /// 动态菜单栏图：纯黑 + alpha 画进位图，交给系统按菜单栏明暗着色。
+    private static func makeTemplateImage(
+        size: NSSize,
+        draw: (CGContext, NSRect) -> Void
+    ) -> NSImage {
+        let scale = max(NSScreen.main?.backingScaleFactor ?? 2, 1)
+        let pixelsWide = max(1, Int((size.width * scale).rounded(.up)))
+        let pixelsHigh = max(1, Int((size.height * scale).rounded(.up)))
+        guard let rep = NSBitmapImageRep(
+            bitmapDataPlanes: nil,
+            pixelsWide: pixelsWide,
+            pixelsHigh: pixelsHigh,
+            bitsPerSample: 8,
+            samplesPerPixel: 4,
+            hasAlpha: true,
+            isPlanar: false,
+            colorSpaceName: .deviceRGB,
+            bytesPerRow: 0,
+            bitsPerPixel: 0
+        ) else {
+            let fallback = NSImage(size: size)
+            fallback.isTemplate = true
+            return fallback
+        }
+        rep.size = size
+
+        NSGraphicsContext.saveGraphicsState()
+        defer { NSGraphicsContext.restoreGraphicsState() }
+        guard let graphics = NSGraphicsContext(bitmapImageRep: rep) else {
+            let fallback = NSImage(size: size)
+            fallback.isTemplate = true
+            return fallback
+        }
+        NSGraphicsContext.current = graphics
+        let context = graphics.cgContext
+        context.saveGState()
+        defer { context.restoreGState() }
+        context.setShouldAntialias(true)
+        // 位图上下文原点在左下、单位是像素；缩放到点坐标后再画。
+        context.scaleBy(x: scale, y: scale)
+        context.clear(CGRect(origin: .zero, size: size))
+        draw(context, NSRect(origin: .zero, size: size))
+
+        let image = NSImage(size: size)
+        image.addRepresentation(rep)
         image.isTemplate = true
         return image
     }
@@ -281,13 +306,14 @@ enum MenuBarIconRenderer {
         context.setLineWidth(ringWidth)
         context.setLineCap(.round)
         context.setLineJoin(.round)
-        context.setStrokeColor(NSColor.black.withAlphaComponent(trackOpacity).cgColor)
+        // 模板图只用灰度 0 + alpha；禁止灰 RGB，系统会按 alpha 重新着色。
+        context.setStrokeColor(CGColor(gray: 0, alpha: trackOpacity))
         context.strokeEllipse(in: bounds)
 
         let normalized = min(max(progress, 0), 100) / 100
         guard normalized > 0 else { return }
 
-        context.setStrokeColor(NSColor.black.cgColor)
+        context.setStrokeColor(CGColor(gray: 0, alpha: 1))
         if normalized >= 1 {
             context.strokeEllipse(in: bounds)
             return

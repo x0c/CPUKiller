@@ -120,7 +120,7 @@ final class ProcessTableRankingTests: XCTestCase {
             displayName: name,
             bundlePath: nil,
             iconPath: nil,
-            memberPIDs: [1],
+            memberIdentities: [ProcessIdentity(pid: 1, startTime: 1)],
             cpuPercent: cpu,
             memoryPercent: memory,
             kind: .other,

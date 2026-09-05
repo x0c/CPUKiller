@@ -30,27 +30,11 @@ nonisolated enum ProcessTableRanking {
         } else {
             visible = Array(ranked.prefix(12))
         }
-        return pin(visible, onto: rows, pinnedID: pinnedID, pinnedIndex: pinnedIndex)
+        return TableRowPinning.pin(visible, onto: rows, pinnedID: pinnedID, pinnedIndex: pinnedIndex)
     }
 
     static func percentText(_ value: Double) -> String {
         String(format: "%.1f%%", value)
-    }
-
-    private static func pin(
-        _ visible: [ProcessRow],
-        onto allRows: [ProcessRow],
-        pinnedID: String?,
-        pinnedIndex: Int?
-    ) -> [ProcessRow] {
-        guard let pinnedID, let pinnedIndex else { return visible }
-        guard let pinned = allRows.first(where: { $0.id == pinnedID }) else {
-            return visible
-        }
-        var result = visible.filter { $0.id != pinnedID }
-        let index = min(max(pinnedIndex, 0), result.count)
-        result.insert(pinned, at: index)
-        return result
     }
 }
 
@@ -71,6 +55,8 @@ final class ProcessListModel {
     private var pinnedRowID: String?
     private var pinnedIndex: Int?
     private var unpinTask: Task<Void, Never>?
+    /// 进行中的结束行；防止连点或网络表与进程表重叠并发杀同一批 PID。
+    private var endingRowIDs: Set<String> = []
     @ObservationIgnored private var metricsObserver: ((Double, Double) -> Void)?
 
     var refreshEnabled: Bool = AppPreferences.refreshEnabledDefault {
@@ -105,23 +91,18 @@ final class ProcessListModel {
     }
 
     func setEndHover(_ hovering: Bool, rowID: String) {
-        if hovering {
-            unpinTask?.cancel()
-            unpinTask = nil
-            if pinnedRowID != rowID {
-                pinnedIndex = visibleRows.firstIndex { $0.id == rowID }
-                pinnedRowID = rowID
-            }
-            return
-        }
-        guard pinnedRowID == rowID else { return }
-        unpinTask?.cancel()
-        unpinTask = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(80))
-            guard !Task.isCancelled, self?.pinnedRowID == rowID else { return }
-            self?.pinnedRowID = nil
-            self?.pinnedIndex = nil
-        }
+        PinnedEndHover.apply(
+            hovering: hovering,
+            rowID: rowID,
+            pinnedRowID: &pinnedRowID,
+            pinnedIndex: &pinnedIndex,
+            unpinTask: &unpinTask,
+            visibleIndexForRow: { [weak self] in
+                self?.visibleRows.firstIndex { $0.id == rowID }
+            },
+            clearPin: { [weak self] in self?.clearPin() },
+            currentPinnedID: { [weak self] in self?.pinnedRowID }
+        )
     }
 
     func setPanelVisible(_ visible: Bool) {
@@ -188,6 +169,8 @@ final class ProcessListModel {
     }
 
     func end(_ row: ProcessRow) async {
+        guard endingRowIDs.insert(row.id).inserted else { return }
+        defer { endingRowIDs.remove(row.id) }
         lastError = nil
         let outcome = await ProcessTerminator.end(row)
         switch outcome {

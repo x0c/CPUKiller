@@ -61,7 +61,8 @@ nonisolated enum DisplayClassifier {
             if token.hasPrefix("-") { continue }
             if base.contains("=") { continue }
             if isInterpreterName(base) { continue }
-            if base == executableName, isInterpreterName(executableName) { continue }
+            // argv0 常等于短名（WindowServer 等）；那不是「具名脚本」，跳过以免放开结束边界。
+            if base == executableName { continue }
             return base
         }
         return nil
@@ -72,6 +73,7 @@ nonisolated enum DisplayClassifier {
         if protectedNames.contains(name) { return true }
         if path.hasPrefix("/System/") { return true }
         if path.hasPrefix("/usr/libexec/") { return true }
+        if path.hasPrefix("/usr/sbin/") { return true }
         if path.hasPrefix("/sbin/") { return true }
         return false
     }
@@ -79,6 +81,10 @@ nonisolated enum DisplayClassifier {
     // MARK: - Keys
 
     private static func rowKey(for process: RawProcess, byPID: [pid_t: RawProcess]) -> String {
+        // 系统保护进程禁止折进桌面应用行，否则结束应用时会连带 SIGKILL。
+        if isProtected(name: process.executableName, path: process.path, pid: process.pid) {
+            return "proc:\(process.pid)"
+        }
         if isChatGPTFamily(process, byPID: byPID) {
             return "chatgpt"
         }
@@ -133,7 +139,7 @@ nonisolated enum DisplayClassifier {
             displayName: display,
             bundlePath: bundle,
             iconPath: icon,
-            memberPIDs: members.map(\.pid),
+            memberIdentities: members.map(\.identity),
             cpuPercent: cpu,
             memoryPercent: memoryPercent,
             kind: kind,
@@ -149,6 +155,8 @@ nonisolated enum DisplayClassifier {
         if id == "corral" { return .corral }
         if id.hasPrefix("tool:") { return .namedTool }
         if id.hasPrefix("app:") { return .desktopApp }
+        // proc: 独立行：即使责任 PID 指向某 .app，也不升成 desktopApp（否则保护行会解锁结束）。
+        if id.hasPrefix("proc:") { return .other }
         if owningBundlePath(lead, byPID: byPID) != nil { return .desktopApp }
         return .other
     }

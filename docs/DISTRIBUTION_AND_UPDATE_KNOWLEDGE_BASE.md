@@ -78,10 +78,11 @@ flowchart TD
 
 发布脚本对公开更新清单和 Homebrew 配方都有版本回退保护。公开仓远端传输失败不等于本地签名或公证失效：应从公开快照、Release、cask 或匿名终检的失败环节续跑，不重新公证已经通过的同一产物。
 
-**【排错 2026-09-05】并发发版与 raw CDN 终检】**
+**【排错】并发发版与 raw CDN 终检** → 全局权威：
 
-- 同一工作树禁止并行跑 `publish-release.sh`：两个实例会抢同一 `Release` 产物目录，重签过程中打出的 zip 会出现「The signature of the binary is invalid」，苹果公证直接 `Invalid`。发版前先确认没有第二个脚本 / `notarytool submit`；本机可用互斥锁或看板「发布中」条目互斥。
-- 匿名终检读的是 `https://raw.githubusercontent.com/.../appcast.xml`。GitHub `main` 与 `gh api .../contents/appcast.xml` 已含新内部构建号、但 raw 仍是旧条目时，多半是 CDN 未刷到（常见几十秒到一两分钟），不要据此回滚或重签；用 `gh api` / `git show github/main:appcast.xml` 核对真源后稍等再终检。Release 附件与 Homebrew cask 已上传成功时，只重跑终检即可。
+→ [macos-signing-notarization-distribution.md](/Users/geraltgraham/Codes/_standards/workspace-docs/swift-docs/macos-signing-notarization-distribution.md)「同一工作树禁止并行发版；raw CDN 滞后不是回滚信号」
+
+本仓脚本名：`scripts/publish-release.sh`。产物目录与互斥按该文执行。
 
 ## §2.5 物理路径速查
 
@@ -143,18 +144,17 @@ flowchart TD
 
 ## §6 核心业务规则与隐性约束
 
-- 【必须】所有 Xcode 工程结构和构建设置只改 `project.yml`，改后运行 XcodeGen 重新生成工程（原因：`CPUKiller.xcodeproj` 是派生产物，手改会在下次生成时丢失）。
-- **AI 易错点** 【禁止】只改 `Configuration/Base.xcconfig` 或只改 `project.yml` 的版本 -> 必须同步营销版本与内部构建号的两份来源（原因：发行脚本会拦截不一致，且应用、更新清单和 Release 会失去同一版本语义）。
-- **AI 易错点** 【禁止】把 Debug 构建或 ad-hoc 签名产物覆盖到“应用程序”中的 Developer ID 应用 -> 必须使用 Release 构建产物，并在覆盖前删除旧应用再整包复制（原因：混装会破坏签名链，也会让系统图标与实际包状态混淆）。
-- 【隐性依赖】Release 构建后的 Sparkle 框架内含更新器、自动更新程序和 XPC 服务；它们必须按从内到外的顺序重新以 Developer ID 签名，并逐个检查签发者和时间戳（原因：只签外层应用或使用笼统深度检查不足以发现内部 ad-hoc 签名）。
-- **AI 易错点** 【禁止】手改已签名的 `appcast.xml`、删除其签名尾部或改为外链版本说明 -> 必须用 `generate_appcast` 生成、用 `sign_update --verify` 校验，并保持版本说明内嵌（原因：Sparkle 会拒绝未签名或被改写的清单，外链说明还引入额外发布资产）。
-- 【必须】应用和 DMG 都要完成公证并装订票据；仅应用可运行、仅 DMG 可挂载或仅本机签名正确都不代表陌生机器可安装。
-- **AI 易错点** 【禁止】将 GitHub `origin` 私有镜像的历史或内网地址原样推到公开仓 -> 必须通过 `push_github_snapshot()` 推送当前树的干净快照，并在发布前按公开仓规则做泄漏扫描（原因：私有 origin 不会替公开仓拦截敏感路径和历史）。
-- 【必须】GitHub Release 先创建空发行页，再上传 DMG 与更新 ZIP（原因：脚本记录一条创建命令同时带附件会在上传接口返回 404，可能留下空壳或失败）。
-- 【必须】公开更新清单与 Homebrew cask 均不得回退版本；脚本分别检查线上内部构建号和 cask 现有版本（原因：回退会让用户得到旧版本或破坏升级预期）。
-- 【隐性依赖】Sparkle 安装会话期间，常规菜单栏隐藏或关闭保护不能阻止应用终止；`AppDelegate` 必须将 `sessionInProgress` 交给 `TerminationGuard`（原因：阻止终止会让已验证的更新不能落地）。
-- 【禁止】为更新或安装新增账号、遥测、服务端任务、Mac App Store 路径、沙盒、辅助功能或完整磁盘访问（原因：均不属于本地工具的公开分发边界）。
-- 【叫法统一】正文中的“安装、更新与公开发布”覆盖 DMG、Sparkle、GitHub Release 和 Homebrew；代码中分别出现 `AppUpdater`、`appcast.xml`、`publish-release.sh` 和 cask，它们是本域入口，不是四个独立业务域。
+**跨产品权威**：Developer ID / 加固运行时 / Sparkle 内嵌重签 / 版本双轨 / 空 Release 再传附件 / 并发发版互斥 / raw CDN 终检滞后 / `--local-only` → `~/Codes/_standards/workspace-docs/swift-docs/macos-signing-notarization-distribution.md`；开源门面与 Homebrew → `~/.config/agentsync/docs/OPEN_SOURCE_GITHUB_GUIDE.md`；商店 vs 官网公证分工 → `~/.config/agentsync/docs/APP_STORE_CHINA_LISTING_GUIDE.md` §3.1。本节约本仓接线。
+
+- 【必须】Xcode 工程只改 `project.yml`，改后 XcodeGen 重生（`CPUKiller.xcodeproj` 是派生产物）。
+- **AI 易错点** 营销版本与内部构建号须同步改 `Configuration/Base.xcconfig` 与 `project.yml`（脚本会拦不一致）。
+- **AI 易错点** 禁止用 Debug / ad-hoc 覆盖 `/Applications` 里的 Developer ID 包；覆盖安装先删再整包 `ditto`（见 swift 基线）。
+- 【接线】`AppUpdater` 长期持有 Sparkle 控制器；`AppDelegate` 把 `sessionInProgress` 交给 `TerminationGuard`；右键/设置「检查更新…」只转发，不重写安装流程。
+- 【禁止】手改已签名 `appcast.xml`；必须用本仓 `scripts/publish-release.sh` 调用的 Sparkle 工具生成并校验。
+- 【必须】公开快照走 `push_github_snapshot()`，禁止把私有 origin 历史/内网地址推到 `x0c/CPUKiller`；发布前按公开仓规则做泄漏扫描。
+- 【必须】公开 appcast 与 Homebrew cask `x0c/tap` 的 `cpu-killer` 不得回退版本（脚本已检）。
+- 【禁止】为更新/安装新增账号、遥测、服务端任务、Mac App Store、沙盒、辅助功能或完整磁盘访问。
+- 【叫法】“安装、更新与公开发布”覆盖 DMG、Sparkle、GitHub Release 和 Homebrew；`AppUpdater` / `appcast.xml` / `publish-release.sh` / cask 是入口名，不是四个独立业务域。
 
 ## §7 常见易忽略条件与验证路径
 
@@ -232,4 +232,4 @@ flowchart TD
 - Q&A 补充：用户经验缺失；本次依据现有代码与文档建立入口和验证路径，不推断未在仓内体现的 Apple 或 GitHub 操作细节。
 - 待补充：当前运行状态、已安装应用版本、远端 GitHub Release、Homebrew cask、在线 `appcast.xml`、Developer ID 签名、公证票据和匿名下载状态均未在本次验证，必须在每次发行时重新核验。历史发行证据可能过时，不能当作当前有效性结论。
 
-<!-- 该文档由 doc-init 生成于 2026-09-04；定位：AI 修改安装、更新与公开发布前的快速参考文档 -->
+<!-- 该文档整理/压缩于 2026-09-05 -->
